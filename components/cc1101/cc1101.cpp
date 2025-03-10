@@ -22,6 +22,9 @@
 #include "cc1101defs.h"
 #include <limits.h>
 #include <sstream>
+#include <vector>
+#include <string>
+
 
 #ifdef USE_ARDUINO
 #include <Arduino.h>
