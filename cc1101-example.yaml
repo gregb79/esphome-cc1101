@@ -17,7 +17,7 @@ substitutions:
   device_name: cc1101
 
 external_components:
-  - source: github://gregb79/esphome-cc1101@getdataworking
+  - source: github://gregb79/esphome-cc1101@passinfoworking
 #external_components:
 #  - source: github://gregb79/components-esphome@modulation
 #    components: [ cc1101 ]
@@ -136,7 +136,20 @@ button:
       - cc1101.begin_tx: transceiver
       - remote_transmitter.transmit_raw:
           code: !lambda |-
-            return id(transceiver).get_data();
+            int mode;
+            if (id(SPA_ELECTRIC_MODE_Select).state == "Pool Only") {
+              mode = 1;
+            } else if (id(SPA_ELECTRIC_MODE_Select).state == "Spa Only") {
+              mode = 2;
+            } else if (id(SPA_ELECTRIC_MODE_Select).state == "Pool and Spa") {
+              mode = 3;
+            }
+            return id(transceiver).get_data(
+              (int)id(SPA_ELECTRIC_ID0_Input).state,
+              (int)id(SPA_ELECTRIC_ID1_Input).state,
+              (int)id(SPA_ELECTRIC_INSTRUCTION_Input).state,
+              mode
+            );
           repeat:
             times: 5
       - cc1101.end_tx: transceiver
