@@ -1,7 +1,7 @@
 # 05 03 25 compiles yet to test 
 # Working with Modulation
 #working with moddevworking
-#
+#working crc
 
 # CC1101    WIRE        ESP Lolin32       ESP32-30PIN
 #   VCC     RED         3V3               3V3
@@ -17,7 +17,7 @@ substitutions:
   device_name: cc1101
 
 external_components:
-  - source: github://gregb79/esphome-cc1101@moddevworking
+  - source: github://gregb79/esphome-cc1101@getdataworking
 #external_components:
 #  - source: github://gregb79/components-esphome@modulation
 #    components: [ cc1101 ]
@@ -81,13 +81,63 @@ remote_transmitter:
 #  dump:
 #    # - raw
 
+select:
+  - platform: template
+    name: "SPA ELECTRIC MODE SELECT"
+    id: SPA_ELECTRIC_MODE_Select
+    optimistic: true
+    restore_value: true
+    options:
+      - "Pool and Spa"
+      - "Pool Only"
+      - "Spa Only"
+    initial_option: "Pool Only"
+    set_action:
+      - logger.log:
+          format: "Chosen option: %s "
+          args: ["x.c_str()"]
+
+number:
+  - platform: template
+    name: "SPA ELECTRIC ID0 Input (249-0xF9)(J246-0xF6)"
+    optimistic: true
+    min_value: 0
+    max_value: 255
+    initial_value: 249
+    step: 1
+    mode: box
+    id: SPA_ELECTRIC_ID0_Input
+
+  - platform: template
+    name: "SPA ELECTRIC ID1 Input (203-0xCB)(J166-0xA6)"
+    optimistic: true
+    min_value: 0
+    max_value: 255
+    initial_value: 203
+    step: 1
+    mode: box
+    id: SPA_ELECTRIC_ID1_Input
+
+  - platform: template
+    name: "SPA ELECTRIC INSTRUCTION Input (Power 17 = 0x11)"
+    optimistic: true
+    min_value: 1
+    max_value: 255
+    initial_value: 17
+    step: 1
+    mode: box
+    id: SPA_ELECTRIC_INSTRUCTION_Input
+
 button:
   - platform: template
-    name: "${device_name} Raw"
+    name: "${device_name} getcode"
     on_press:
       - logger.log: "The Raw Button Was Pressed"
       - cc1101.begin_tx: transceiver
       - remote_transmitter.transmit_raw:
-            code: [105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-312,105,-104,210,-104,315,-104,105,-104,105,-208,525,-208,315,-208,105,-104,210,-1144,105,-312,105,-728,105,-208,105,-104,105,-208,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-312,105,-104,210,-104,315,-104,105,-104,105,-208,525,-208,315,-208,105,-104,210,-1144,105,-312,105,-728,105,-208,105,-104,105,-208,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-312,105,-104,210,-104,315,-104,105,-104,105,-208,525,-208,315,-208,105,-104,210,-1144,105,-312,105,-728,105,-208,105,-104,105,-208,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-104,105,-312,105,-104,210,-104,315,-104,105,-104,105,-208,525,-208,315,-208,105,-104,210,-1144,105,-312,105,-728,105,-208,105,-104,105,-208]
+          code: !lambda |-
+            return id(transceiver).get_data();
+          repeat:
+            times: 5
       - cc1101.end_tx: transceiver
       - logger.log: "The Raw Tx has happened"
