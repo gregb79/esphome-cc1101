@@ -728,6 +728,12 @@ void CC1101::end_tx()
 
 void CC1101::get_data()
 {
+  uint8_t DATA_TABLE[12] = {0xAA, 0XAA, 0XAA, 0XAA, 0x2D, 0xD4, 0xF9, 203 , 0x00, 17, 3 , 0x00};
+  uint8_t DATACRC_TABLE[12] = {0x00, 0X00, 0X00, 0X00, 0x00, 0x00, 0x00, 0x00 , 0x00, 0x00, 0x00 , 0x00};
+     //uint8_t DATA_TABLE[] = {0x00, 0X00, 0X00, 0X00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+     //                    0     1     2     3     4     5     6     7     8     9     10    11                     
+     //                                            |__CRC =__0x100_-_sum_of_bytes______|     CRC
+
   DATA_TABLE[6] = id(SPA_ELECTRIC_ID0_Input).state;
   DATA_TABLE[7] = id(SPA_ELECTRIC_ID1_Input).state;   
   DATA_TABLE[9] = id(SPA_ELECTRIC_INSTRUCTION_Input).state
@@ -738,6 +744,10 @@ void CC1101::get_data()
   for (int i = 0; i < sizeof(DATA_TABLE); i++) {
     ESP_LOGI(TAG, "DATA_TABLE[%d] = 0x%02X", i, DATA_TABLE[i]);
   }
+  ESP_LOGI(TAG, "DATACRC_TABLE contents:");
+  for (int i = 0; i < sizeof(DATACRC_TABLE); i++) {
+  ESP_LOGI(TAG, "DATACRC_TABLE[%d] = 0x%02X", i, DATACRC_TABLE[i]);
+  
 }
 
 } // namespace cc1101
