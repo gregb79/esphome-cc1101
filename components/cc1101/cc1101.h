@@ -3,6 +3,7 @@
 #include "esphome/core/component.h"
 #include "esphome/components/sensor/sensor.h"
 #include "esphome/components/spi/spi.h"
+#include "esphome/core/global_variables.h"
 
 namespace esphome {
 namespace cc1101 {
@@ -94,6 +95,7 @@ public:
 
   void begin_tx();
   void end_tx();
+  void get_data();
 };
 
 template<typename... Ts> class BeginTxAction : public Action<Ts...>, public Parented<CC1101>
@@ -106,6 +108,12 @@ template<typename... Ts> class EndTxAction : public Action<Ts...>, public Parent
 {
 public:
   void play(Ts... x) override { this->parent_->end_tx(); }
+};
+
+template<typename... Ts> class GetDataAction : public Action<Ts...>, public Parented<CC1101>
+{
+public:
+  void play(Ts... x) override { this->parent_->get_data(); }
 };
 
 } // namespace cc1101
