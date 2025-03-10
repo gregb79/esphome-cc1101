@@ -81,6 +81,18 @@ CC1101_ACTION_SCHEMA = maybe_simple_id(
 async def cc1101_action_to_code(config, action_id, template_arg, args):
     var = cg.new_Pvariable(action_id, template_arg)
     await cg.register_parented(var, config[CONF_ID])
+    if CONF_SPA_ELECTRIC_ID0_INPUT in config:
+        id0 = await cg.get_variable(config[CONF_SPA_ELECTRIC_ID0_INPUT])
+        cg.add(var.set_id0(id0))
+    if CONF_SPA_ELECTRIC_ID1_INPUT in config:
+        id1 = await cg.get_variable(config[CONF_SPA_ELECTRIC_ID1_INPUT])
+        cg.add(var.set_id1(id1))
+    if CONF_SPA_ELECTRIC_INSTRUCTION_INPUT in config:
+        instruction = await cg.get_variable(config[CONF_SPA_ELECTRIC_INSTRUCTION_INPUT])
+        cg.add(var.set_instruction(instruction))
+    if CONF_SPA_ELECTRIC_MODE_SELECT in config:
+        mode = await cg.get_variable(config[CONF_SPA_ELECTRIC_MODE_SELECT])
+        cg.add(var.set_mode(mode))
     return var
 
 async def to_code(config):
