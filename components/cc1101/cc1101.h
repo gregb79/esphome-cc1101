@@ -40,6 +40,7 @@ protected:
 
   bool mode_;
   uint8_t modulation_;
+  float deviation_;
   uint8_t frend0_;
   uint8_t chan_;
   int8_t pa_;
@@ -59,6 +60,7 @@ protected:
   void set_mode(bool s);
   void set_frequency(uint32_t f);
   void set_modulation(uint8_t m);
+  void set_deviation(float d);
   void set_pa(int8_t pa);
   void set_clb(uint8_t b, uint8_t s, uint8_t e);
   void set_rxbw(uint32_t bw);
@@ -68,7 +70,7 @@ protected:
   void set_sidle();
   void set_sleep();
 
-  void split_MDMCFG2();
+  void split_MDMCFG2(); 
   void split_MDMCFG4();
 
 public:
@@ -78,6 +80,8 @@ public:
   void set_config_gdo2(InternalGPIOPin* pin);
   void set_config_bandwidth(uint32_t bandwidth);
   void set_config_frequency(uint32_t frequency);
+  void set_config_modulation(int modulation);
+  void set_config_deviation(float deviation);
   void set_config_rssi_sensor(sensor::Sensor* rssi_sensor);
   void set_config_lqi_sensor(sensor::Sensor* lqi_sensor);
 
@@ -90,6 +94,7 @@ public:
 
   void begin_tx();
   void end_tx();
+  void get_data();
 };
 
 template<typename... Ts> class BeginTxAction : public Action<Ts...>, public Parented<CC1101>
@@ -102,6 +107,12 @@ template<typename... Ts> class EndTxAction : public Action<Ts...>, public Parent
 {
 public:
   void play(Ts... x) override { this->parent_->end_tx(); }
+};
+
+template<typename... Ts> class GetDataAction : public Action<Ts...>, public Parented<CC1101>
+{
+public:
+  void play(Ts... x) override { this->parent_->get_data(); }
 };
 
 } // namespace cc1101
