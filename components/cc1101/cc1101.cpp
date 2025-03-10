@@ -97,6 +97,11 @@ void CC1101::set_config_frequency(uint32_t frequency)
   frequency_ = frequency;
 }
 
+void CC1101::set_config_modulation(int modulation)
+{ 
+  modulation_ = modulation;
+}
+
 void CC1101::set_config_rssi_sensor(sensor::Sensor* rssi_sensor)
 {
   rssi_sensor_ = rssi_sensor;
@@ -205,6 +210,7 @@ void CC1101::dump_config()
   LOG_PIN("  CC1101 GDO2: ", this->gdo2_);
   ESP_LOGCONFIG(TAG, "  CC1101 Bandwith: %d KHz", this->bandwidth_);
   ESP_LOGCONFIG(TAG, "  CC1101 Frequency: %d KHz", this->frequency_);
+  ESP_LOGCONFIG(TAG, "  CC1101 Modulation: %d KHz", this->modulation_);
   LOG_SENSOR("  ", "RSSI", this->rssi_sensor_);
   LOG_SENSOR("  ", "LQI", this->lqi_sensor_);
 }
