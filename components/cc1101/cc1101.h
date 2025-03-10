@@ -3,6 +3,8 @@
 #include "esphome/core/component.h"
 #include "esphome/components/sensor/sensor.h"
 #include "esphome/components/spi/spi.h"
+#include "esphome/components/number/number.h"
+#include "esphome/components/select/select.h"
 #include <vector>
 
 namespace esphome {
@@ -118,7 +120,7 @@ public:
 template<typename... Ts> class GetDataAction : public Action<Ts...>, public Parented<CC1101>
 {
 public:
-  GetDataAction(Number *id0, Number *id1, Number *instruction, Select *mode)
+  GetDataAction(number::Number *id0, number::Number *id1, number::Number *instruction, select::Select *mode)
     : id0_(id0), id1_(id1), instruction_(instruction), mode_(mode) {}
 
   void play(Ts... x) override {
@@ -139,10 +141,10 @@ public:
   }
 
 private:
-  Number *id0_;
-  Number *id1_;
-  Number *instruction_;
-  Select *mode_;
+  number::Number *id0_;
+  number::Number *id1_;
+  number::Number *instruction_;
+  select::Select *mode_;
 };
 
 } // namespace cc1101
