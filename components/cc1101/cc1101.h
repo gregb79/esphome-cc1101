@@ -59,6 +59,7 @@ protected:
   void set_mode(bool s);
   void set_frequency(uint32_t f);
   void set_modulation(uint8_t m);
+  void set_deviation(uint32_t d);
   void set_pa(int8_t pa);
   void set_clb(uint8_t b, uint8_t s, uint8_t e);
   void set_rxbw(uint32_t bw);
@@ -68,7 +69,7 @@ protected:
   void set_sidle();
   void set_sleep();
 
-  void split_MDMCFG2();
+  void split_MDMCFG2(); 
   void split_MDMCFG4();
 
 public:
@@ -79,6 +80,7 @@ public:
   void set_config_bandwidth(uint32_t bandwidth);
   void set_config_frequency(uint32_t frequency);
   void set_config_modulation(int modulation);
+  void set_config_deviation(uint32_t deviation);
   void set_config_rssi_sensor(sensor::Sensor* rssi_sensor);
   void set_config_lqi_sensor(sensor::Sensor* lqi_sensor);
 
