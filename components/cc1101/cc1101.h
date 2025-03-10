@@ -118,7 +118,14 @@ public:
 template<typename... Ts> class GetDataAction : public Action<Ts...>, public Parented<CC1101>
 {
 public:
-  void play(Ts... x) override { this->parent_->get_data(); }
+  void play(Ts... x) override {
+    this->parent_->get_data(
+      (int)id(SPA_ELECTRIC_ID0_Input).state,
+      (int)id(SPA_ELECTRIC_ID1_Input).state,
+      (int)id(SPA_ELECTRIC_INSTRUCTION_Input).state,
+      (int)id(SPA_ELECTRIC_MODE_Select).state
+    );
+  }
 };
 
 } // namespace cc1101
