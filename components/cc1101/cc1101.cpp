@@ -755,61 +755,56 @@ void CC1101::end_tx()
 //  }
 //}
 
-void CC1101::get_data() {
-  uint8_t DATA_TABLE[12] = {0xAA, 0XAA, 0XAA, 0XAA, 0x2D, 0xD4, 0xF9, 203, 0x00, 17, 3, 0x00};
-  uint8_t DATACRC_TABLE[12] = {0x00, 0X00, 0X00, 0X00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+std::vector<int> CC1101::get_data() {
+    uint8_t DATA_TABLE[12] = {0xAA, 0XAA, 0XAA, 0XAA, 0x2D, 0xD4, 0xF9, 203, 0x00, 17, 3, 0x00};
+    uint8_t DATACRC_TABLE[12] = {0x00, 0X00, 0X00, 0X00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-  DATA_TABLE[6] = 249;   // ID
-  DATA_TABLE[7] = 203;   // ID
-  DATA_TABLE[9] = 17;    // INSTRUCTION
-  DATA_TABLE[10] = 3;    // MODE
+    DATA_TABLE[6] = 249;   // ID
+    DATA_TABLE[7] = 203;   // ID
+    DATA_TABLE[9] = 17;    // INSTRUCTION
+    DATA_TABLE[10] = 3;    // MODE
 
-  // Calculate the checksum
-  unsigned int sum = 0;
-  for (int i = 4; i < 11; i++) {
-      sum += DATA_TABLE[i];
-  }
-  unsigned char checksum = static_cast<unsigned char>(-sum);
-  DATA_TABLE[11] = checksum;
+    // Calculate the checksum
+    unsigned int sum = 0;
+    for (int i = 4; i < 11; i++) {
+        sum += DATA_TABLE[i];
+    }
+    unsigned char checksum = static_cast<unsigned char>(-sum);
+    DATA_TABLE[11] = checksum;
 
-  // Copy data to DATACRC_TABLE
-  for (int h = 0; h < 12; h++) {
-      DATACRC_TABLE[h] = DATA_TABLE[h];
-  }
+    // Copy data to DATACRC_TABLE
+    for (int h = 0; h < 12; h++) {
+        DATACRC_TABLE[h] = DATA_TABLE[h];
+    }
 
-  // Create a vector to store the data
-  std::vector<int> DataVector;
-  for (int i = 0; i < 12; ++i) {
-      uint8_t byte = DATACRC_TABLE[i];
-      for (int j = 7; j >= 0; --j) {
-          if (byte & (1 << j)) {
-              DataVector.push_back(105);  // High bit (1) corresponds to 105 microseconds
-          } else {
-              DataVector.push_back(-104); // Low bit (0) corresponds to -104 microseconds
-          }
-      }
-  }
+    // Create a vector to store the data
+    std::vector<int> DataVector;
+    for (int i = 0; i < 12; ++i) {
+        uint8_t byte = DATACRC_TABLE[i];
+        for (int j = 7; j >= 0; --j) {
+            if (byte & (1 << j)) {
+                DataVector.push_back(105);  // High bit (1) corresponds to 105 microseconds
+            } else {
+                DataVector.push_back(-104); // Low bit (0) corresponds to -104 microseconds
+            }
+        }
+    }
 
-  // Convert DataVector elements to a single string
-  std::string dataString;
-  for (int value : DataVector) {
-      dataString += std::to_string(value) + ", ";
-  }
+    // Convert DataVector elements to a single string
+    std::string dataString;
+    for (int value : DataVector) {
+        dataString += std::to_string(value) + ", ";
+    }
 
-  // Remove the trailing comma and space
-  if (!dataString.empty()) {
-      dataString.erase(dataString.length() - 2);
-  }
+    // Remove the trailing comma and space
+    if (!dataString.empty()) {
+        dataString.erase(dataString.length() - 2);
+    }
 
-  // Log the string
-  ESP_LOGD("custom", "New Vector: %s", dataString.c_str());
+    // Log the string
+    ESP_LOGD("custom", "New Vector: %s", dataString.c_str());
 
-  // Log the contents of DATA_TABLE and DATACRC_TABLE
-  ESP_LOGI(TAG, "DATACRC_TABLE contents:");
-  for (int i = 0; i < sizeof(DATACRC_TABLE); i++) {
-      ESP_LOGI(TAG, "DATACRC_TABLE[%d] = 0x%02X", i, DATACRC_TABLE[i]);
-
-  // Log the contents of DATACRC_TABLE in one line
+    // Log the contents of DATACRC_TABLE in one line
     std::ostringstream oss;
     for (int i = 0; i < sizeof(DATACRC_TABLE); i++) {
         oss << "0x" << std::hex << std::uppercase << static_cast<int>(DATACRC_TABLE[i]);
@@ -817,9 +812,9 @@ void CC1101::get_data() {
             oss << ", ";
         }
     }
-    ESP_LOGI(TAG, "DATACRC_TABLE contents One Line: %s", oss.str().c_str());
-  }
+    ESP_LOGI(TAG, "DATACRC_TABLE contents: %s", oss.str().c_str());
 
+    return DataVector;
 }
 
 
