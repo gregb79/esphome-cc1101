@@ -3,7 +3,7 @@
 #include "esphome/core/component.h"
 #include "esphome/components/sensor/sensor.h"
 #include "esphome/components/spi/spi.h"
-#include "esphome/core/global_variables.h"
+#include "esphome/core/global_var.h"
 
 namespace esphome {
 namespace cc1101 {
