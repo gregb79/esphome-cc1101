@@ -211,6 +211,7 @@ void CC1101::dump_config()
   ESP_LOGCONFIG(TAG, "  CC1101 Bandwith: %d KHz", this->bandwidth_);
   ESP_LOGCONFIG(TAG, "  CC1101 Frequency: %d KHz", this->frequency_);
   ESP_LOGCONFIG(TAG, "  CC1101 Modulation: %d KHz", this->modulation_);
+  ESP_LOGCONFIG(TAG, "  CC1101 Deviation: %d KHz", this->deviation_);
   LOG_SENSOR("  ", "RSSI", this->rssi_sensor_);
   LOG_SENSOR("  ", "LQI", this->lqi_sensor_);
 }
@@ -369,6 +370,21 @@ void CC1101::set_modulation(uint8_t m)
   this->write_register(CC1101_FREND0, this->frend0_);
 
   this->set_pa(this->pa_);
+}
+
+void CC1101::set_deviation(uint8_t d){
+float f = 1.586914;
+float v = 0.19836425;
+int c = 0;
+if (d > 380.859375){d = 380.859375;}
+if (d < 1.586914){d = 1.586914;}
+for (int i = 0; i<255; i++){
+f+=v;
+if (c==7){v*=2;c=-1;i+=8;}
+if (f>=d){c=i;i=255;}
+c++;
+}
+this->write_register(21,c);
 }
 
 void CC1101::set_pa(int8_t pa)
