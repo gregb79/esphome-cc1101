@@ -111,4 +111,3 @@ async def to_code(config):
         cg.add(var.set_spa_electric_instruction_input(config[CONF_SPA_ELECTRIC_INSTRUCTION_INPUT]))
     if CONF_SPA_ELECTRIC_MODE_SELECT in config:
         cg.add(var.set_spa_electric_mode_select(config[CONF_SPA_ELECTRIC_MODE_SELECT]))
-
