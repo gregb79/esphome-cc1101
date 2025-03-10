@@ -22,12 +22,21 @@ CONF_BANDWIDTH = "bandwidth"
 CONF_FREQUENCY = "frequency"
 CONF_RSSI = "rssi"
 CONF_LQI = "lqi"
+CONF_MODULATION = "modulation"
 
 cc1101_ns = cg.esphome_ns.namespace("cc1101")
 CC1101 = cc1101_ns.class_("CC1101", sensor.Sensor, cg.PollingComponent, spi.SPIDevice)
 
 BeginTxAction = cc1101_ns.class_("BeginTxAction", automation.Action)
 EndTxAction = cc1101_ns.class_("EndTxAction", automation.Action)
+
+MOD = {
+    "2FSK": 0,
+    "GFSK": 1,
+    "ASK": 2,
+    "4FSK": 3,
+    "MSK": 4,
+}
 
 CONFIG_SCHEMA = (
     cv.Schema(
@@ -37,6 +46,7 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_GDO2): pins.gpio_input_pin_schema,
             cv.Optional(CONF_BANDWIDTH, default=200): cv.uint32_t,
             cv.Optional(CONF_FREQUENCY, default=433920): cv.uint32_t,
+            cv.Optional(CONF_MODULATION, default="2FSK"): cv.enum(MOD),
             cv.Optional(CONF_RSSI): sensor.sensor_schema(
                 unit_of_measurement = UNIT_DECIBEL_MILLIWATT,
                 accuracy_decimals = 0,
@@ -80,6 +90,7 @@ async def to_code(config):
         cg.add(var.set_config_gdo2(gdo2))
     cg.add(var.set_config_bandwidth(config[CONF_BANDWIDTH]))
     cg.add(var.set_config_frequency(config[CONF_FREQUENCY]))
+    cg.add(var.set_config_modulation(config[CONF_MODULATION]))
     if CONF_RSSI in config:
         rssi = await sensor.new_sensor(config[CONF_RSSI])
         cg.add(var.set_config_rssi_sensor(rssi))
