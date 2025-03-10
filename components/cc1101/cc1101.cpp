@@ -102,6 +102,11 @@ void CC1101::set_config_modulation(int modulation)
   modulation_ = modulation;
 }
 
+void CC1101::set_config_deviation(float deviation)
+{ 
+  deviation_ = deviation;
+}
+
 void CC1101::set_config_rssi_sensor(sensor::Sensor* rssi_sensor)
 {
   rssi_sensor_ = rssi_sensor;
