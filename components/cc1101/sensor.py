@@ -23,6 +23,8 @@ CONF_FREQUENCY = "frequency"
 CONF_RSSI = "rssi"
 CONF_LQI = "lqi"
 CONF_MODULATION = "modulation"
+CONF_DEVIATION = "deviation"
+
 
 cc1101_ns = cg.esphome_ns.namespace("cc1101")
 CC1101 = cc1101_ns.class_("CC1101", sensor.Sensor, cg.PollingComponent, spi.SPIDevice)
@@ -39,6 +41,7 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_BANDWIDTH, default=200): cv.uint32_t,
             cv.Optional(CONF_FREQUENCY, default=433920): cv.uint32_t,
             cv.Optional(CONF_MODULATION, default=0): cv.uint8_t,
+            cv.Optional(CONF_DEVIATION, default=160): cv.uint32_t,
             cv.Optional(CONF_RSSI): sensor.sensor_schema(
                 unit_of_measurement = UNIT_DECIBEL_MILLIWATT,
                 accuracy_decimals = 0,
@@ -83,6 +86,7 @@ async def to_code(config):
     cg.add(var.set_config_bandwidth(config[CONF_BANDWIDTH]))
     cg.add(var.set_config_frequency(config[CONF_FREQUENCY]))
     cg.add(var.set_config_modulation(config[CONF_MODULATION]))
+    cg.add(var.set_config_deviation(config[CONF_DEVIATION]))
     if CONF_RSSI in config:
         rssi = await sensor.new_sensor(config[CONF_RSSI])
         cg.add(var.set_config_rssi_sensor(rssi))
