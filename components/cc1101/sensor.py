@@ -103,4 +103,12 @@ async def to_code(config):
     if CONF_LQI in config:
         lqi = await sensor.new_sensor(config[CONF_LQI])
         cg.add(var.set_config_lqi_sensor(lqi))
+    if CONF_SPA_ELECTRIC_ID0_INPUT in config:
+        cg.add(var.set_spa_electric_id0_input(config[CONF_SPA_ELECTRIC_ID0_INPUT]))
+    if CONF_SPA_ELECTRIC_ID1_INPUT in config:
+        cg.add(var.set_spa_electric_id1_input(config[CONF_SPA_ELECTRIC_ID1_INPUT]))
+    if CONF_SPA_ELECTRIC_INSTRUCTION_INPUT in config:
+        cg.add(var.set_spa_electric_instruction_input(config[CONF_SPA_ELECTRIC_INSTRUCTION_INPUT]))
+    if CONF_SPA_ELECTRIC_MODE_SELECT in config:
+        cg.add(var.set_spa_electric_mode_select(config[CONF_SPA_ELECTRIC_MODE_SELECT]))
 
