@@ -96,6 +96,11 @@ public:
   void begin_tx();
   void end_tx();
   std::vector<int> get_data();
+  void set_spa_electric_id0_input(int value);
+  void set_spa_electric_id1_input(int value);
+  void set_spa_electric_instruction_input(int value);
+  void set_spa_electric_mode_select(int value);
+  std::vector<int> get_data(int id0, int id1, int instruction, int mode);
 };
 
 template<typename... Ts> class BeginTxAction : public Action<Ts...>, public Parented<CC1101>
@@ -118,4 +123,3 @@ public:
 
 } // namespace cc1101
 } // namespace esphome
-
