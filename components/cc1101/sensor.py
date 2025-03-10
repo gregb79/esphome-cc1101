@@ -22,12 +22,16 @@ CONF_BANDWIDTH = "bandwidth"
 CONF_FREQUENCY = "frequency"
 CONF_RSSI = "rssi"
 CONF_LQI = "lqi"
+CONF_MODULATION = "modulation"
+CONF_DEVIATION = "deviation"
+
 
 cc1101_ns = cg.esphome_ns.namespace("cc1101")
 CC1101 = cc1101_ns.class_("CC1101", sensor.Sensor, cg.PollingComponent, spi.SPIDevice)
 
 BeginTxAction = cc1101_ns.class_("BeginTxAction", automation.Action)
 EndTxAction = cc1101_ns.class_("EndTxAction", automation.Action)
+GetDataAction = cc1101_ns.class_("GetDataAction", automation.Action)  
 
 CONFIG_SCHEMA = (
     cv.Schema(
@@ -37,6 +41,8 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_GDO2): pins.gpio_input_pin_schema,
             cv.Optional(CONF_BANDWIDTH, default=200): cv.uint32_t,
             cv.Optional(CONF_FREQUENCY, default=433920): cv.uint32_t,
+            cv.Optional(CONF_MODULATION, default=0): cv.uint8_t,
+            cv.Optional(CONF_DEVIATION, default=160): cv.float_,
             cv.Optional(CONF_RSSI): sensor.sensor_schema(
                 unit_of_measurement = UNIT_DECIBEL_MILLIWATT,
                 accuracy_decimals = 0,
@@ -62,6 +68,7 @@ CC1101_ACTION_SCHEMA = maybe_simple_id(
 
 @automation.register_action("cc1101.begin_tx", BeginTxAction, CC1101_ACTION_SCHEMA)
 @automation.register_action("cc1101.end_tx", EndTxAction, CC1101_ACTION_SCHEMA)
+@automation.register_action("cc1101.get_data", GetDataAction, CC1101_ACTION_SCHEMA) 
 
 async def cc1101_action_to_code(config, action_id, template_arg, args):
     var = cg.new_Pvariable(action_id, template_arg)
@@ -80,6 +87,8 @@ async def to_code(config):
         cg.add(var.set_config_gdo2(gdo2))
     cg.add(var.set_config_bandwidth(config[CONF_BANDWIDTH]))
     cg.add(var.set_config_frequency(config[CONF_FREQUENCY]))
+    cg.add(var.set_config_modulation(config[CONF_MODULATION]))
+    cg.add(var.set_config_deviation(config[CONF_DEVIATION]))
     if CONF_RSSI in config:
         rssi = await sensor.new_sensor(config[CONF_RSSI])
         cg.add(var.set_config_rssi_sensor(rssi))
