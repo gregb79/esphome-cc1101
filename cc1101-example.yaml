@@ -15,7 +15,7 @@ substitutions:
   device_name: cc1101
 
 external_components:
-  - source: github://gregb79/esphome-cc1101@moddev1
+  - source: github://gregb79/esphome-cc1101@moddev2
 #external_components:
 #  - source: github://gregb79/components-esphome@modulation
 #    components: [ cc1101 ]
