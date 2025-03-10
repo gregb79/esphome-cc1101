@@ -40,6 +40,7 @@ protected:
 
   bool mode_;
   uint8_t modulation_;
+  uint8_t deviation_;
   uint8_t frend0_;
   uint8_t chan_;
   int8_t pa_;
