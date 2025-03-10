@@ -78,6 +78,7 @@ public:
   void set_config_gdo2(InternalGPIOPin* pin);
   void set_config_bandwidth(uint32_t bandwidth);
   void set_config_frequency(uint32_t frequency);
+  void set_config_modulation(int modulation);
   void set_config_rssi_sensor(sensor::Sensor* rssi_sensor);
   void set_config_lqi_sensor(sensor::Sensor* lqi_sensor);
 
