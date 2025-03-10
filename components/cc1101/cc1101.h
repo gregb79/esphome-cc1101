@@ -118,14 +118,31 @@ public:
 template<typename... Ts> class GetDataAction : public Action<Ts...>, public Parented<CC1101>
 {
 public:
+  GetDataAction(Number *id0, Number *id1, Number *instruction, Select *mode)
+    : id0_(id0), id1_(id1), instruction_(instruction), mode_(mode) {}
+
   void play(Ts... x) override {
+    int mode_value;
+    if (mode_->state == "Pool Only") {
+      mode_value = 1;
+    } else if (mode_->state == "Spa Only") {
+      mode_value = 2;
+    } else if (mode_->state == "Pool and Spa") {
+      mode_value = 3;
+    }
     this->parent_->get_data(
-      (int)id(SPA_ELECTRIC_ID0_Input).state,
-      (int)id(SPA_ELECTRIC_ID1_Input).state,
-      (int)id(SPA_ELECTRIC_INSTRUCTION_Input).state,
-      (int)id(SPA_ELECTRIC_MODE_Select).state
+      (int)id0_->state,
+      (int)id1_->state,
+      (int)instruction_->state,
+      mode_value
     );
   }
+
+private:
+  Number *id0_;
+  Number *id1_;
+  Number *instruction_;
+  Select *mode_;
 };
 
 } // namespace cc1101
