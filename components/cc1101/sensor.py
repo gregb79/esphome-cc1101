@@ -24,6 +24,10 @@ CONF_RSSI = "rssi"
 CONF_LQI = "lqi"
 CONF_MODULATION = "modulation"
 CONF_DEVIATION = "deviation"
+CONF_SPA_ELECTRIC_ID0_INPUT = "spa_electric_id0_input"
+CONF_SPA_ELECTRIC_ID1_INPUT = "spa_electric_id1_input"
+CONF_SPA_ELECTRIC_INSTRUCTION_INPUT = "spa_electric_instruction_input"
+CONF_SPA_ELECTRIC_MODE_SELECT = "spa_electric_mode_select"
 
 
 cc1101_ns = cg.esphome_ns.namespace("cc1101")
@@ -43,6 +47,10 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_FREQUENCY, default=433920): cv.uint32_t,
             cv.Optional(CONF_MODULATION, default=0): cv.uint8_t,
             cv.Optional(CONF_DEVIATION, default=160): cv.float_,
+            cv.Optional(CONF_SPA_ELECTRIC_ID0_INPUT): cv.int_,
+            cv.Optional(CONF_SPA_ELECTRIC_ID1_INPUT): cv.int_,
+            cv.Optional(CONF_SPA_ELECTRIC_INSTRUCTION_INPUT): cv.int_,
+            cv.Optional(CONF_SPA_ELECTRIC_MODE_SELECT): cv.int_,
             cv.Optional(CONF_RSSI): sensor.sensor_schema(
                 unit_of_measurement = UNIT_DECIBEL_MILLIWATT,
                 accuracy_decimals = 0,
