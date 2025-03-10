@@ -734,9 +734,9 @@ void CC1101::get_data()
      //                    0     1     2     3     4     5     6     7     8     9     10    11                     
      //                                            |__CRC =__0x100_-_sum_of_bytes______|     CRC
 
-  DATA_TABLE[6] = id(SPA_ELECTRIC_ID0_Input).state;
-  DATA_TABLE[7] = id(SPA_ELECTRIC_ID1_Input).state;   
-  DATA_TABLE[9] = id(SPA_ELECTRIC_INSTRUCTION_Input).state
+  DATA_TABLE[6] = 249;
+  DATA_TABLE[7] = 203;   
+  DATA_TABLE[9] = 17;
   DATA_TABLE[10] = 3;   
   DATA_TABLE[11] = 5;
 
