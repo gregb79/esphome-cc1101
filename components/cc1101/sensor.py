@@ -38,7 +38,7 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_GDO2): pins.gpio_input_pin_schema,
             cv.Optional(CONF_BANDWIDTH, default=200): cv.uint32_t,
             cv.Optional(CONF_FREQUENCY, default=433920): cv.uint32_t,
-            cv.Optional(CONF_MODULATION, default=0): cv.byte_,
+            cv.Optional(CONF_MODULATION, default=0): cv.uint8_t,
             cv.Optional(CONF_RSSI): sensor.sensor_schema(
                 unit_of_measurement = UNIT_DECIBEL_MILLIWATT,
                 accuracy_decimals = 0,
