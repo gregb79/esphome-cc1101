@@ -18,7 +18,6 @@
 */
 
 #include "esphome/core/log.h"
-#include "esphome/core/global_var.h"
 #include "cc1101.h"
 #include "cc1101defs.h"
 #include <limits.h>
