@@ -30,14 +30,6 @@ CC1101 = cc1101_ns.class_("CC1101", sensor.Sensor, cg.PollingComponent, spi.SPID
 BeginTxAction = cc1101_ns.class_("BeginTxAction", automation.Action)
 EndTxAction = cc1101_ns.class_("EndTxAction", automation.Action)
 
-MOD = {
-    "2FSK": 0,
-    "GFSK": 1,
-    "ASK": 2,
-    "4FSK": 3,
-    "MSK": 4,
-}
-
 CONFIG_SCHEMA = (
     cv.Schema(
         {
@@ -46,7 +38,7 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_GDO2): pins.gpio_input_pin_schema,
             cv.Optional(CONF_BANDWIDTH, default=200): cv.uint32_t,
             cv.Optional(CONF_FREQUENCY, default=433920): cv.uint32_t,
-            cv.Optional(CONF_MODULATION, default="2FSK"): cv.enum(MOD),
+            cv.Optional(CONF_MODULATION, default=0): cv.byte,
             cv.Optional(CONF_RSSI): sensor.sensor_schema(
                 unit_of_measurement = UNIT_DECIBEL_MILLIWATT,
                 accuracy_decimals = 0,
