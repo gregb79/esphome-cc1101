@@ -731,8 +731,8 @@ void CC1101::get_data()
   DATA_TABLE[6] = id(SPA_ELECTRIC_ID0_Input).state;
   DATA_TABLE[7] = id(SPA_ELECTRIC_ID1_Input).state;   
   DATA_TABLE[9] = id(SPA_ELECTRIC_INSTRUCTION_Input).state
-  DATA_TABLE[10] =  3;   
-  DATA_TABLE[11] = 250;
+  DATA_TABLE[10] = 3;   
+  DATA_TABLE[11] = 5;
 
   ESP_LOGI(TAG, "DATA_TABLE contents:");
   for (int i = 0; i < sizeof(DATA_TABLE); i++) {
