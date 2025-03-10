@@ -725,5 +725,29 @@ void CC1101::end_tx()
   this->set_rx(); // yes, twice (really?)
 }
 
+void CC1101::get_data()
+{
+  DATA_TABLE[6] = id(SPA_ELECTRIC_ID0_Input).state;
+  DATA_TABLE[7] = id(SPA_ELECTRIC_ID1_Input).state;   
+  DATA_TABLE[9] = id(SPA_ELECTRIC_INSTRUCTION_Input).state;
+        
+  if(id(SPA_ELECTRIC_MODE_Select).state == "Pool Only"){
+    DATA_TABLE[10] =  1;   // MODE
+  }
+  else if (id(SPA_ELECTRIC_MODE_Select).state == "Spa Only"){
+    DATA_TABLE[10] =  2;   // MODE
+  }
+  else if (id(SPA_ELECTRIC_MODE_Select).state == "Pool and Spa"){
+    DATA_TABLE[10] =  3;   // MODE
+  }
+
+  DATA_TABLE[11] = 250;
+
+  ESP_LOGI(TAG, "DATA_TABLE contents:");
+  for (int i = 0; i < sizeof(DATA_TABLE); i++) {
+    ESP_LOGI(TAG, "DATA_TABLE[%d] = 0x%02X", i, DATA_TABLE[i]);
+  }
+}
+
 } // namespace cc1101
 } // namespace esphome
