@@ -94,7 +94,7 @@ public:
 
   void begin_tx();
   void end_tx();
-  void get_data();
+  std::vector<int> get_data();
 };
 
 template<typename... Ts> class BeginTxAction : public Action<Ts...>, public Parented<CC1101>
