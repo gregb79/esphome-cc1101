@@ -820,7 +820,83 @@ std::vector<int> CC1101::get_data() {
     return DataVector;
 }
 
+void CC1101::set_spa_electric_id0_input(int value) {
+  // Store the value or use it as needed
+}
 
+void CC1101::set_spa_electric_id1_input(int value) {
+  // Store the value or use it as needed
+}
+
+void CC1101::set_spa_electric_instruction_input(int value) {
+  // Store the value or use it as needed
+}
+
+void CC1101::set_spa_electric_mode_select(int value) {
+  // Store the value or use it as needed
+}
+
+std::vector<int> CC1101::get_data(int id0, int id1, int instruction, int mode) {
+    uint8_t DATA_TABLE[12] = {0xAA, 0XAA, 0XAA, 0XAA, 0x2D, 0xD4, 0xF9, 203, 0x00, 17, 3, 0x00};
+    uint8_t DATACRC_TABLE[12] = {0x00, 0X00, 0X00, 0X00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+    DATA_TABLE[6] = id0;   // ID0
+    DATA_TABLE[7] = id1;   // ID1
+    DATA_TABLE[9] = instruction;    // INSTRUCTION
+    DATA_TABLE[10] = mode;    // MODE
+
+    // Calculate the checksum
+    unsigned int sum = 0;
+    for (int i = 4; i < 11; i++) {
+        sum += DATA_TABLE[i];
+    }
+    unsigned char checksum = static_cast<unsigned char>(-sum);
+    DATA_TABLE[11] = checksum;
+
+    // Copy data to DATACRC_TABLE
+    for (int h = 0; h < 12; h++) {
+        DATACRC_TABLE[h] = DATA_TABLE[h];
+    }
+
+    // Create a vector to store the data
+    std::vector<int> DataVector;
+    for (int i = 0; i < 12; ++i) {
+        uint8_t byte = DATACRC_TABLE[i];
+        for (int j = 7; j >= 0; --j) {
+            if (byte & (1 << j)) {
+                DataVector.push_back(105);  // High bit (1) corresponds to 105 microseconds
+            } else {
+                DataVector.push_back(-104); // Low bit (0) corresponds to -104 microseconds
+            }
+        }
+    }
+
+    // Convert DataVector elements to a single string
+    std::string dataString;
+    for (int value : DataVector) {
+        dataString += std::to_string(value) + ", ";
+    }
+
+    // Remove the trailing comma and space
+    if (!dataString.empty()) {
+        dataString.erase(dataString.length() - 2);
+    }
+
+    // Log the string
+    ESP_LOGD("custom", "New Vector: %s", dataString.c_str());
+
+    // Log the contents of DATACRC_TABLE in one line
+    std::ostringstream oss;
+    for (int i = 0; i < sizeof(DATACRC_TABLE); i++) {
+        oss << "0x" << std::hex << std::uppercase << static_cast<int>(DATACRC_TABLE[i]);
+        if (i < sizeof(DATACRC_TABLE) - 1) {
+            oss << ", ";
+        }
+    }
+    ESP_LOGI(TAG, "DATACRC_TABLE contents: %s", oss.str().c_str());
+
+    return DataVector;
+}
 
 } // namespace cc1101
 } // namespace esphome
