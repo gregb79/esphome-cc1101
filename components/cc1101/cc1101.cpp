@@ -372,7 +372,7 @@ void CC1101::set_modulation(uint8_t m)
   this->set_pa(this->pa_);
 }
 
-void CC1101::set_deviation(uint8_t d){
+void CC1101::set_deviation(float d){
 float f = 1.586914;
 float v = 0.19836425;
 int c = 0;
