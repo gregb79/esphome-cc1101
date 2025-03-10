@@ -1,5 +1,6 @@
 # 05 03 25 compiles yet to test 
 # Working with Modulation
+#working with moddev5
 
 # CC1101    WIRE        ESP Lolin32       ESP32-30PIN
 #   VCC     RED         3V3               3V3
@@ -15,7 +16,7 @@ substitutions:
   device_name: cc1101
 
 external_components:
-  - source: github://gregb79/esphome-cc1101@moddev2
+  - source: github://gregb79/esphome-cc1101@moddev5
 #external_components:
 #  - source: github://gregb79/components-esphome@modulation
 #    components: [ cc1101 ]
