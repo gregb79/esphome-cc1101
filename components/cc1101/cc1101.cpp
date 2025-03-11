@@ -25,6 +25,7 @@
 #include <string>
 #include <sstream>
 #include "esphome.h"
+#include <globals_component.h>
 
 #ifdef USE_ARDUINO
 #include <Arduino.h>
