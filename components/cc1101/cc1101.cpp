@@ -24,6 +24,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include "esphome.h"
 
 #ifdef USE_ARDUINO
 #include <Arduino.h>
