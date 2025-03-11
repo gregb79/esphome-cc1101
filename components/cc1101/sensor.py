@@ -24,6 +24,11 @@ CONF_RSSI = "rssi"
 CONF_LQI = "lqi"
 CONF_MODULATION = "modulation"
 CONF_DEVIATION = "deviation"
+CONF_SPA_ELECTRIC_ID0_INPUT = "spa_electric_id0_input"
+CONF_SPA_ELECTRIC_ID1_INPUT = "spa_electric_id1_input"
+CONF_SPA_ELECTRIC_INSTRUCTION_INPUT = "spa_electric_instruction_input"
+CONF_SPA_ELECTRIC_MODE_SELECT = "spa_electric_mode_select"
+CONF_INT_TEST = "int_test"
 
 
 cc1101_ns = cg.esphome_ns.namespace("cc1101")
@@ -31,7 +36,7 @@ CC1101 = cc1101_ns.class_("CC1101", sensor.Sensor, cg.PollingComponent, spi.SPID
 
 BeginTxAction = cc1101_ns.class_("BeginTxAction", automation.Action)
 EndTxAction = cc1101_ns.class_("EndTxAction", automation.Action)
-GetDataAction = cc1101_ns.class_("GetDataAction", automation.Action)  
+GetDataAction = cc1101_ns.class_("GetDataAction", automation.Action) 
 
 CONFIG_SCHEMA = (
     cv.Schema(
@@ -43,6 +48,11 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_FREQUENCY, default=433920): cv.uint32_t,
             cv.Optional(CONF_MODULATION, default=0): cv.uint8_t,
             cv.Optional(CONF_DEVIATION, default=160): cv.float_,
+            cv.Optional(CONF_SPA_ELECTRIC_ID0_INPUT): cv.int_,
+            cv.Optional(CONF_SPA_ELECTRIC_ID1_INPUT): cv.int_,
+            cv.Optional(CONF_SPA_ELECTRIC_INSTRUCTION_INPUT): cv.int_,
+            cv.Optional(CONF_SPA_ELECTRIC_MODE_SELECT): cv.int_,
+            cv.Optional(CONF_INT_TEST): cv.int_,
             cv.Optional(CONF_RSSI): sensor.sensor_schema(
                 unit_of_measurement = UNIT_DECIBEL_MILLIWATT,
                 accuracy_decimals = 0,
@@ -68,11 +78,23 @@ CC1101_ACTION_SCHEMA = maybe_simple_id(
 
 @automation.register_action("cc1101.begin_tx", BeginTxAction, CC1101_ACTION_SCHEMA)
 @automation.register_action("cc1101.end_tx", EndTxAction, CC1101_ACTION_SCHEMA)
-@automation.register_action("cc1101.get_data", GetDataAction, CC1101_ACTION_SCHEMA) 
+@automation.register_action("cc1101.get_data", GetDataAction, CC1101_ACTION_SCHEMA)
 
 async def cc1101_action_to_code(config, action_id, template_arg, args):
     var = cg.new_Pvariable(action_id, template_arg)
     await cg.register_parented(var, config[CONF_ID])
+    if CONF_SPA_ELECTRIC_ID0_INPUT in config:
+        id0 = await cg.get_variable(config[CONF_SPA_ELECTRIC_ID0_INPUT])
+        cg.add(var.set_id0(id0))
+    if CONF_SPA_ELECTRIC_ID1_INPUT in config:
+        id1 = await cg.get_variable(config[CONF_SPA_ELECTRIC_ID1_INPUT])
+        cg.add(var.set_id1(id1))
+    if CONF_SPA_ELECTRIC_INSTRUCTION_INPUT in config:
+        instruction = await cg.get_variable(config[CONF_SPA_ELECTRIC_INSTRUCTION_INPUT])
+        cg.add(var.set_instruction(instruction))
+    if CONF_SPA_ELECTRIC_MODE_SELECT in config:
+        mode = await cg.get_variable(config[CONF_SPA_ELECTRIC_MODE_SELECT])
+        cg.add(var.set_mode(mode))
     return var
 
 async def to_code(config):
@@ -95,4 +117,13 @@ async def to_code(config):
     if CONF_LQI in config:
         lqi = await sensor.new_sensor(config[CONF_LQI])
         cg.add(var.set_config_lqi_sensor(lqi))
-
+    if CONF_SPA_ELECTRIC_ID0_INPUT in config:
+        cg.add(var.set_spa_electric_id0_input(config[CONF_SPA_ELECTRIC_ID0_INPUT]))
+    if CONF_SPA_ELECTRIC_ID1_INPUT in config:
+        cg.add(var.set_spa_electric_id1_input(config[CONF_SPA_ELECTRIC_ID1_INPUT]))
+    if CONF_SPA_ELECTRIC_INSTRUCTION_INPUT in config:
+        cg.add(var.set_spa_electric_instruction_input(config[CONF_SPA_ELECTRIC_INSTRUCTION_INPUT]))
+    if CONF_SPA_ELECTRIC_MODE_SELECT in config:
+        cg.add(var.set_spa_electric_mode_select(config[CONF_SPA_ELECTRIC_MODE_SELECT]))
+    if CONF_INT_TEST in config:
+        cg.add(var.set_int_test(config[CONF_INT_TEST]))
