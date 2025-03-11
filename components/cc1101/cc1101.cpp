@@ -24,7 +24,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
-
+#include <globals_component.h>
 
 #ifdef USE_ARDUINO
 #include <Arduino.h>
