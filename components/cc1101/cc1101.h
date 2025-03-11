@@ -3,6 +3,9 @@
 #include "esphome/core/component.h"
 #include "esphome/components/sensor/sensor.h"
 #include "esphome/components/spi/spi.h"
+#include "esphome/components/number/number.h"
+#include "esphome/components/select/select.h"
+#include <vector>
 
 namespace esphome {
 namespace cc1101 {
@@ -94,7 +97,13 @@ public:
 
   void begin_tx();
   void end_tx();
-  void get_data();
+  std::vector<int> get_data(int id0, int id1, int instruction, int mode);
+  void set_spa_electric_id0_input(int value);
+  void set_spa_electric_id1_input(int value);
+  void set_spa_electric_instruction_input(int value);
+  void set_spa_electric_mode_select(int value);
+  void set_int_test(int value);
+
 };
 
 template<typename... Ts> class BeginTxAction : public Action<Ts...>, public Parented<CC1101>
@@ -112,9 +121,32 @@ public:
 template<typename... Ts> class GetDataAction : public Action<Ts...>, public Parented<CC1101>
 {
 public:
-  void play(Ts... x) override { this->parent_->get_data(); }
+  GetDataAction(number::Number *id0, number::Number *id1, number::Number *instruction, select::Select *mode)
+    : id0_(id0), id1_(id1), instruction_(instruction), mode_(mode) {}
+
+  void play(Ts... x) override {
+    int mode_value;
+    if (mode_->state == "Pool Only") {
+      mode_value = 1;
+    } else if (mode_->state == "Spa Only") {
+      mode_value = 2;
+    } else if (mode_->state == "Pool and Spa") {
+      mode_value = 3;
+    }
+    this->parent_->get_data(
+      (int)id0_->state,
+      (int)id1_->state,
+      (int)instruction_->state,
+      mode_value
+    );
+  }
+
+private:
+  number::Number *id0_;
+  number::Number *id1_;
+  number::Number *instruction_;
+  select::Select *mode_;
 };
 
 } // namespace cc1101
 } // namespace esphome
-
