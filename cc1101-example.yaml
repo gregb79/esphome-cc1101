@@ -1,7 +1,7 @@
 # 05 03 25 compiles yet to test 
 # Working with Modulation
 #working with moddevworking
-#working crc
+#working with passinfoworking
 
 # CC1101    WIRE        ESP Lolin32       ESP32-30PIN
 #   VCC     RED         3V3               3V3
@@ -81,6 +81,25 @@ remote_transmitter:
 #  dump:
 #    # - raw
 
+# Example configuration entry
+globals:
+  - id: int_id0
+    type: int
+    restore_value: no
+    initial_value: '249'
+  - id: int_id1
+    type: int
+    restore_value: no
+    initial_value: '203'
+  - id: int_instruction
+    type: int
+    restore_value: no
+    initial_value: '17'
+  - id: int_mode
+    type: int
+    restore_value: no
+    initial_value: '1'
+
 select:
   - platform: template
     name: "SPA ELECTRIC MODE SELECT"
@@ -88,14 +107,111 @@ select:
     optimistic: true
     restore_value: true
     options:
-      - "Pool and Spa"
-      - "Pool Only"
-      - "Spa Only"
-    initial_option: "Pool Only"
-    set_action:
-      - logger.log:
-          format: "Chosen option: %s "
-          args: ["x.c_str()"]
+      - "Pool and Spa 3"
+      - "Pool Only 1"
+      - "Spa Only 2"
+    initial_option: "Pool Only 1"
+    on_value:
+      then:
+        - logger.log:
+            format: "Chosen option: %s "
+            args: ["x.c_str()"]
+        - lambda: |-
+           ESP_LOGD("custom", "Current selected option: %s", id(SPA_ELECTRIC_MODE_Select).state.c_str());
+            if (id(SPA_ELECTRIC_MODE_Select).state == "Pool and Spa 3") {
+              ESP_LOGD("custom", "Selected Pool and Spa: 3");
+              id(int_mode) = 3;
+              ESP_LOGD("custom", "%d", id(int_mode));
+            } else if (id(SPA_ELECTRIC_MODE_Select).state == "Pool Only 1") {
+              ESP_LOGD("custom", "Selected Pool Only: 1");
+              id(int_mode) =1;
+              ESP_LOGD("custom", "%d", id(int_mode)); 
+            } else if (id(SPA_ELECTRIC_MODE_Select).state == "Spa Only 2") {
+              ESP_LOGD("custom", "Selected Spa Only: 2");
+              id(int_mode) =2;
+              ESP_LOGD("custom", "%d", id(int_mode)); 
+            }
+
+
+  - platform: template
+    name: "SPA ELECTRIC INSTRUCTION SELECT"
+    id: SPA_ELECTRIC_INSTRUCTION_Select
+    optimistic: true
+    restore_value: true
+    options:
+      - "Power 17"
+      - "Blue 33"
+      - "Magenta 34"
+      - "Red 35"
+      - "Lime 36"
+      - "Green 37"
+      - "Aqua 38"
+      - "White 39"
+      - "Mode I 49"
+      - "Mode II 50"
+      - "Mode III 51"
+      - "Mode IIII 52"
+      - "Brightness 65"
+    initial_option: "Power 17"
+    on_value:
+      then:
+        - logger.log:
+            format: "Chosen option: %s "
+            args: ["x.c_str()"]
+        - lambda: |-
+            if (id(SPA_ELECTRIC_INSTRUCTION_Select).state == "Power 17") {
+              ESP_LOGD("custom", "Selected Power: 17");
+              id(int_instruction) = 17;
+              ESP_LOGD("custom", "%d", id(int_instruction)); 
+            } else if (id(SPA_ELECTRIC_INSTRUCTION_Select).state == "Blue 33") {
+              ESP_LOGD("custom", "Selected Blue: 33");
+              id(int_instruction) = 33;
+              ESP_LOGD("custom", "%d", id(int_instruction)); 
+            } else if (id(SPA_ELECTRIC_INSTRUCTION_Select).state == "Magenta 34") {
+              ESP_LOGD("custom", "Selected Magenta: 34");
+              id(int_instruction) = 34;
+              ESP_LOGD("custom", "%d", id(int_instruction)); 
+            } else if (id(SPA_ELECTRIC_INSTRUCTION_Select).state == "Red 35") {
+              ESP_LOGD("custom", "Selected Red: 35");
+              id(int_instruction) = 35;
+              ESP_LOGD("custom", "%d", id(int_instruction)); 
+            } else if (id(SPA_ELECTRIC_INSTRUCTION_Select).state == "Lime 36") {
+              ESP_LOGD("custom", "Selected Lime: 36");
+              id(int_instruction) = 36;
+              ESP_LOGD("custom", "%d", id(int_instruction)); 
+            } else if (id(SPA_ELECTRIC_INSTRUCTION_Select).state == "Green 37") {
+              ESP_LOGD("custom", "Selected Green: 37");
+              id(int_instruction) = 37;
+              ESP_LOGD("custom", "%d", id(int_instruction)); 
+            } else if (id(SPA_ELECTRIC_INSTRUCTION_Select).state == "Aqua 38") {
+              ESP_LOGD("custom", "Selected Aqua 38");
+              id(int_instruction) = 38;
+              ESP_LOGD("custom", "%d", id(int_instruction)); 
+            } else if (id(SPA_ELECTRIC_INSTRUCTION_Select).state == "White 39") {
+              ESP_LOGD("custom", "Selected White 39");
+              id(int_instruction) = 39;
+              ESP_LOGD("custom", "%d", id(int_instruction)); 
+            } else if (id(SPA_ELECTRIC_INSTRUCTION_Select).state == "Mode I 49") {
+              ESP_LOGD("custom", "Selected Mode I 49");
+              id(int_instruction) = 49;
+              ESP_LOGD("custom", "%d", id(int_instruction)); 
+            } else if (id(SPA_ELECTRIC_INSTRUCTION_Select).state == "Mode II 50") {
+              ESP_LOGD("custom", "Selected Mode II 50");
+              id(int_instruction) = 50;
+              ESP_LOGD("custom", "%d", id(int_instruction)); 
+            } else if (id(SPA_ELECTRIC_INSTRUCTION_Select).state == "Mode III 51") {
+              ESP_LOGD("custom", "Selected Mode III 51");
+             id(int_instruction) = 51;
+              ESP_LOGD("custom", "%d", id(int_instruction)); 
+            } else if (id(SPA_ELECTRIC_INSTRUCTION_Select).state == "Mode IIII 52") {
+              ESP_LOGD("custom", "Selected Mode IIII 52");
+              id(int_instruction) = 52;
+              ESP_LOGD("custom", "%d", id(int_instruction)); 
+            } else if (id(SPA_ELECTRIC_INSTRUCTION_Select).state == "Brightness 65") {
+              ESP_LOGD("custom", "Selected Brightness 65");
+              id(int_instruction) = 65;
+              ESP_LOGD("custom", "%d", id(int_instruction)); 
+            }
 
 number:
   - platform: template
@@ -107,6 +223,11 @@ number:
     step: 1
     mode: box
     id: SPA_ELECTRIC_ID0_Input
+    on_value:
+      then:
+        - lambda: |-
+            id(int_id0) = id(SPA_ELECTRIC_ID0_Input).state;
+            ESP_LOGD("custom", "SPA ELECTRIC ID0 Input state updated to: %d", id(int_id0));
 
   - platform: template
     name: "SPA ELECTRIC ID1 Input (203-0xCB)(J166-0xA6)"
@@ -117,40 +238,36 @@ number:
     step: 1
     mode: box
     id: SPA_ELECTRIC_ID1_Input
-
-  - platform: template
-    name: "SPA ELECTRIC INSTRUCTION Input (Power 17 = 0x11)"
-    optimistic: true
-    min_value: 1
-    max_value: 255
-    initial_value: 17
-    step: 1
-    mode: box
-    id: SPA_ELECTRIC_INSTRUCTION_Input
+    on_value:
+      then:
+        - lambda: |-
+            id(int_id1) = id(SPA_ELECTRIC_ID1_Input).state;
+            ESP_LOGD("custom", "SPA ELECTRIC ID1 Input state updated to: %d", id(int_id1));
 
 button:
   - platform: template
-    name: "${device_name} getcode"
+    name: "${device_name} TX Selection"
     on_press:
-      - logger.log: "The Raw Button Was Pressed"
+      - logger.log: "The getcode Button Was Pressed"
       - cc1101.begin_tx: transceiver
       - remote_transmitter.transmit_raw:
           code: !lambda |-
-            int mode;
-            if (id(SPA_ELECTRIC_MODE_Select).state == "Pool Only") {
-              mode = 1;
-            } else if (id(SPA_ELECTRIC_MODE_Select).state == "Spa Only") {
-              mode = 2;
-            } else if (id(SPA_ELECTRIC_MODE_Select).state == "Pool and Spa") {
-              mode = 3;
-            }
             return id(transceiver).get_data(
-              (int)id(SPA_ELECTRIC_ID0_Input).state,
-              (int)id(SPA_ELECTRIC_ID1_Input).state,
-              (int)id(SPA_ELECTRIC_INSTRUCTION_Input).state,
-              mode
+              id(int_id0),
+              id(int_id1),
+              id(int_instruction),
+              id(int_mode)
             );
           repeat:
             times: 5
       - cc1101.end_tx: transceiver
-      - logger.log: "The Raw Tx has happened"
+      - logger.log: "The getcode Tx has happened"
+  
+  - platform: template
+    name: "${device_name} Show Details"
+    on_press:
+      - lambda: |-
+          ESP_LOGD("custombutton", "int_id0 is now: %d", id(int_id0));
+          ESP_LOGD("custombutton", "int_id1 is now: %d", id(int_id1));
+          ESP_LOGD("custombutton", "int_instruction is now: %d", id(int_instruction));
+          ESP_LOGD("custombutton", "int_mode is now: %d", id(int_mode));
