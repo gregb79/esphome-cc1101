@@ -41,7 +41,7 @@ CONFIG_SCHEMA = (
     cv.Schema(
         {
             cv.GenerateID(): cv.declare_id(CC1101),
-            cv.Required(CONF_GDO0): pins.gpio_output_pin_schema,
+            cv.Required(CONF_GDO0): pins.gpio_output_pin_schema.extend({"allow_other_uses": True}),
             cv.Optional(CONF_GDO2): pins.gpio_input_pin_schema,
             cv.Optional(CONF_BANDWIDTH, default=200): cv.uint32_t,
             cv.Optional(CONF_FREQUENCY, default=433920): cv.uint32_t,
