@@ -28,6 +28,7 @@ CONF_SPA_ELECTRIC_ID0_INPUT = "spa_electric_id0_input"
 CONF_SPA_ELECTRIC_ID1_INPUT = "spa_electric_id1_input"
 CONF_SPA_ELECTRIC_INSTRUCTION_INPUT = "spa_electric_instruction_input"
 CONF_SPA_ELECTRIC_MODE_SELECT = "spa_electric_mode_select"
+CONF_SPA_ELECTRIC_REPEAT_INPUT = "spa_electric_repeat_input"
 
 
 cc1101_ns = cg.esphome_ns.namespace("cc1101")
@@ -51,6 +52,7 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_SPA_ELECTRIC_ID1_INPUT): cv.int_,
             cv.Optional(CONF_SPA_ELECTRIC_INSTRUCTION_INPUT): cv.int_,
             cv.Optional(CONF_SPA_ELECTRIC_MODE_SELECT): cv.int_,
+            cv.Optional(CONF_SPA_ELECTRIC_REPEAT_INPUT, default=0): cv.int_,
             cv.Optional(CONF_RSSI): sensor.sensor_schema(
                 unit_of_measurement = UNIT_DECIBEL_MILLIWATT,
                 accuracy_decimals = 0,
@@ -93,6 +95,9 @@ async def cc1101_action_to_code(config, action_id, template_arg, args):
     if CONF_SPA_ELECTRIC_MODE_SELECT in config:
         mode = await cg.get_variable(config[CONF_SPA_ELECTRIC_MODE_SELECT])
         cg.add(var.set_mode(mode))
+    if CONF_SPA_ELECTRIC_REPEAT_INPUT in config:
+        repeat = await cg.get_variable(config[CONF_SPA_ELECTRIC_REPEAT_INPUT])
+        cg.add(var.set_repeat(repeat))
     return var
 
 async def to_code(config):
@@ -123,3 +128,5 @@ async def to_code(config):
         cg.add(var.set_spa_electric_instruction_input(config[CONF_SPA_ELECTRIC_INSTRUCTION_INPUT]))
     if CONF_SPA_ELECTRIC_MODE_SELECT in config:
         cg.add(var.set_spa_electric_mode_select(config[CONF_SPA_ELECTRIC_MODE_SELECT]))
+    if CONF_SPA_ELECTRIC_REPEAT_INPUT in config:
+        cg.add(var.set_spa_electric_repeat_input(config[CONF_SPA_ELECTRIC_REPEAT_INPUT]))
