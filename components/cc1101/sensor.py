@@ -75,27 +75,48 @@ CC1101_ACTION_SCHEMA = maybe_simple_id(
     }
 )
 
+CC1101_TX_SCHEMA = maybe_simple_id(
+    {
+        cv.Required(CONF_ID): cv.use_id(CC1101),
+        cv.Optional("id0"): cv.templatable(cv.int_),
+        cv.Optional("id1"): cv.templatable(cv.int_),
+        cv.Optional("instruction"): cv.templatable(cv.int_),
+        cv.Optional("mode"): cv.templatable(cv.int_),
+    }
+)
+
 @automation.register_action("cc1101.begin_tx", BeginTxAction, CC1101_ACTION_SCHEMA)
 @automation.register_action("cc1101.end_tx", EndTxAction, CC1101_ACTION_SCHEMA)
 @automation.register_action("cc1101.get_data", GetDataAction, CC1101_ACTION_SCHEMA)
-@automation.register_action("cc1101.tx_data", TxDataAction, CC1101_ACTION_SCHEMA)
+@automation.register_action("cc1101.tx_data", TxDataAction, CC1101_TX_SCHEMA, extra_valid_keys=None)
+
 
 async def cc1101_action_to_code(config, action_id, template_arg, args):
     var = cg.new_Pvariable(action_id, template_arg)
     await cg.register_parented(var, config[CONF_ID])
-    if CONF_SPA_ELECTRIC_ID0_INPUT in config:
-        id0 = await cg.get_variable(config[CONF_SPA_ELECTRIC_ID0_INPUT])
-        cg.add(var.set_id0(id0))
-    if CONF_SPA_ELECTRIC_ID1_INPUT in config:
-        id1 = await cg.get_variable(config[CONF_SPA_ELECTRIC_ID1_INPUT])
-        cg.add(var.set_id1(id1))
-    if CONF_SPA_ELECTRIC_INSTRUCTION_INPUT in config:
-        instruction = await cg.get_variable(config[CONF_SPA_ELECTRIC_INSTRUCTION_INPUT])
-        cg.add(var.set_instruction(instruction))
-    if CONF_SPA_ELECTRIC_MODE_SELECT in config:
-        mode = await cg.get_variable(config[CONF_SPA_ELECTRIC_MODE_SELECT])
-        cg.add(var.set_mode(mode))
     return var
+
+async def cc1101_tx_action_to_code(config, action_id, template_arg, args):
+    var = cg.new_Pvariable(action_id, template_arg)
+    await cg.register_parented(var, config[CONF_ID])
+    # Handle direct arguments for tx_data
+    if "id0" in config:
+        template = await cg.templatable(config["id0"], args, int)
+        cg.add(var.set_id0_template(template))
+    if "id1" in config:
+        template = await cg.templatable(config["id1"], args, int)
+        cg.add(var.set_id1_template(template))
+    if "instruction" in config:
+        template = await cg.templatable(config["instruction"], args, int)
+        cg.add(var.set_instruction_template(template))
+    if "mode" in config:
+        template = await cg.templatable(config["mode"], args, int)
+        cg.add(var.set_mode_template(template))
+    return var
+
+# Patch the registry to use the new function for tx_data
+automation.ACTION_REGISTRY["cc1101.tx_data"] = (TxDataAction, CC1101_TX_SCHEMA, cc1101_tx_action_to_code)
+
 
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
