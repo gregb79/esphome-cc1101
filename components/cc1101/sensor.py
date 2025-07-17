@@ -31,7 +31,6 @@ CONF_SPA_ELECTRIC_INSTRUCTION_INPUT = "spa_electric_instruction_input"
 CONF_SPA_ELECTRIC_MODE_SELECT = "spa_electric_mode_select"
 CONF_SPA_ELECTRIC_REPEAT_INPUT = "spa_electric_repeat_input"
 
-
 cc1101_ns = cg.esphome_ns.namespace("cc1101")
 CC1101 = cc1101_ns.class_("CC1101", sensor.Sensor, cg.PollingComponent, spi.SPIDevice)
 
