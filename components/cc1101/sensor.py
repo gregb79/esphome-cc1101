@@ -52,7 +52,7 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_SPA_ELECTRIC_ID1_INPUT): cv.int_,
             cv.Optional(CONF_SPA_ELECTRIC_INSTRUCTION_INPUT): cv.int_,
             cv.Optional(CONF_SPA_ELECTRIC_MODE_SELECT): cv.int_,
-            cv.Optional(CONF_SPA_ELECTRIC_REPEAT_INPUT, default=0): cv.int_,
+            cv.Optional(CONF_SPA_ELECTRIC_REPEAT_INPUT, default=1): cv.int_,
             cv.Optional(CONF_RSSI): sensor.sensor_schema(
                 unit_of_measurement = UNIT_DECIBEL_MILLIWATT,
                 accuracy_decimals = 0,
