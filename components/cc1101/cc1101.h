@@ -98,13 +98,13 @@ public:
   std::vector<int> get_data(int id0, int id1, int instruction, int mode) { return {}; }
   void transmit_waveform(int id0, int id1, int instruction, int mode, uint8_t repeat = 1);
 
-  void set_modulation(uint8_t m); // Only declare here
+  void set_modulation(uint8_t m); // Only declare once
 
   void set_spa_electric_id0_input(int value) {}
   void set_spa_electric_id1_input(int value) {}
   void set_spa_electric_instruction_input(int value) {}
   void set_spa_electric_mode_select(int value) {}
-  void set_waveform_pin(InternalGPIOPin* pin) { waveform_pin_ = pin; } // Add this setter
+  void set_waveform_pin(InternalGPIOPin* pin) { waveform_pin_ = pin; }
 
   // SPI helpers
   void spi_begin();
@@ -112,8 +112,8 @@ public:
   uint8_t spi_transfer(uint8_t data);
 
 protected:
-  InternalGPIOPin* waveform_pin_{nullptr}; // Add this line
-  uint8_t band_; // Add this line
+  InternalGPIOPin* waveform_pin_{nullptr};
+  uint8_t band_;
 };
 
 // Existing action templates
