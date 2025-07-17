@@ -36,6 +36,7 @@ CC1101 = cc1101_ns.class_("CC1101", sensor.Sensor, cg.PollingComponent, spi.SPID
 BeginTxAction = cc1101_ns.class_("BeginTxAction", automation.Action)
 EndTxAction = cc1101_ns.class_("EndTxAction", automation.Action)
 GetDataAction = cc1101_ns.class_("GetDataAction", automation.Action) 
+TxDataAction = cc1101_ns.class_("TxDataAction", automation.Action) 
 
 CONFIG_SCHEMA = (
     cv.Schema(
@@ -77,6 +78,7 @@ CC1101_ACTION_SCHEMA = maybe_simple_id(
 @automation.register_action("cc1101.begin_tx", BeginTxAction, CC1101_ACTION_SCHEMA)
 @automation.register_action("cc1101.end_tx", EndTxAction, CC1101_ACTION_SCHEMA)
 @automation.register_action("cc1101.get_data", GetDataAction, CC1101_ACTION_SCHEMA)
+@automation.register_action("cc1101.tx_data", TxDataAction, CC1101_ACTION_SCHEMA)
 
 async def cc1101_action_to_code(config, action_id, template_arg, args):
     var = cg.new_Pvariable(action_id, template_arg)
