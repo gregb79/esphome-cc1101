@@ -3,7 +3,6 @@ import esphome.config_validation as cv
 from esphome import automation, pins
 from esphome.components import sensor
 from esphome.components import spi
-from esphome.components import variable as variable_component
 from esphome.automation import maybe_simple_id
 from esphome.const import (
     CONF_ID,
@@ -81,10 +80,10 @@ CC1101_ACTION_SCHEMA = maybe_simple_id(
 GET_DATA_ACTION_SCHEMA = cv.Schema(
     {
         cv.Required(CONF_ID): cv.use_id(CC1101),
-        cv.Required("id0"): cv.use_id(variable_component.IntVariable),
-        cv.Required("id1"): cv.use_id(variable_component.IntVariable),
+        cv.Required("id0"): cv.templatable(cv.int_),
+        cv.Required("id1"): cv.templatable(cv.int_),
         cv.Required("instruction"): cv.int_,
-        cv.Required("mode"): cv.use_id(variable_component.IntVariable),
+        cv.Required("mode"): cv.templatable(cv.int_),
         cv.Optional("repeat", default=1): cv.int_,
     }
 )
