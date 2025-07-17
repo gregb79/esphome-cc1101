@@ -810,8 +810,6 @@ std::vector<int> CC1101::get_data(int id0, int id1, int instruction, int mode, i
 
 // transmit directly from code instead of using transmitt_raw feature
   
-    begin_tx();  // Put CC1101 into TX mode
-
     for (int r = 0; r < repeat; r++) {
       // Transmit pulse sequence on GDO0 pin
       for (int pulse : DataVector) {
@@ -823,9 +821,6 @@ std::vector<int> CC1101::get_data(int id0, int id1, int instruction, int mode, i
        // Optional small delay between repeats
        // delay(10);
     }
-
-
-    end_tx();  // Take CC1101 out of TX mode
 
 }
 
