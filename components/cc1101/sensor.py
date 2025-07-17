@@ -88,7 +88,7 @@ CC1101_TX_SCHEMA = maybe_simple_id(
 @automation.register_action("cc1101.begin_tx", BeginTxAction, CC1101_ACTION_SCHEMA)
 @automation.register_action("cc1101.end_tx", EndTxAction, CC1101_ACTION_SCHEMA)
 @automation.register_action("cc1101.get_data", GetDataAction, CC1101_ACTION_SCHEMA)
-@automation.register_action("cc1101.tx_data", TxDataAction, CC1101_TX_SCHEMA, extra_valid_keys=None)
+@automation.register_action("cc1101.tx_data", TxDataAction, CC1101_TX_SCHEMA)
 
 
 async def cc1101_action_to_code(config, action_id, template_arg, args):
