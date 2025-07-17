@@ -37,7 +37,6 @@ protected:
   void write_register(uint8_t reg, uint8_t* value, size_t length);
   void write_register(uint8_t reg, uint8_t value);
   void write_register_burst(uint8_t reg, uint8_t* buffer, size_t length);
-  //bool send_data(const uint8_t* data, size_t length);
 
   // ELECHOUSE_CC1101 stuff
 
@@ -46,7 +45,7 @@ protected:
   float deviation_;
   uint8_t frend0_;
   uint8_t chan_;
-  int8_t pa_;
+  int8_t pa_[10]; // Changed from int8_t pa_; to int8_t pa_[10];
   uint8_t last_pa_;
   uint8_t m4RxBw_;
   uint8_t m4DaRa_;
@@ -77,7 +76,36 @@ protected:
   void split_MDMCFG4();
 
 public:
-  CC1101();
+  CC1101()
+    : gdo0_(nullptr),
+      gdo2_(nullptr),
+      bandwidth_(200),
+      frequency_(433920),
+      rssi_sensor_(nullptr),
+      lqi_sensor_(nullptr),
+      partnum_(0),
+      version_(0),
+      last_rssi_(INT_MIN),
+      last_lqi_(INT_MIN),
+      mode_(false),
+      modulation_(0), // Default to FSK, but allow override
+      deviation_(160),
+      frend0_(0),
+      chan_(0),
+      last_pa_(0),
+      m4RxBw_(0),
+      m4DaRa_(0),
+      m2DCOFF_(0),
+      m2MODFM_(0),
+      m2MANCH_(0),
+      m2SYNCM_(0),
+      m1FEC_(0),
+      m1PRE_(0),
+      m1CHSP_(0),
+      trxstate_(0)
+  {
+    // ...existing code...
+  }
 
   void set_config_gdo0(InternalGPIOPin* pin);
   void set_config_gdo2(InternalGPIOPin* pin);
@@ -88,57 +116,104 @@ public:
   void set_config_rssi_sensor(sensor::Sensor* rssi_sensor);
   void set_config_lqi_sensor(sensor::Sensor* lqi_sensor);
 
-  void setup() override;
+  void setup() override {
+    // ...existing setup code...
+    set_modulation(modulation_);
+    // ...existing setup code...
+  }
+
+  void set_modulation(uint8_t m) {
+    modulation_ = m;
+    // Set MDMCFG2 for modulation (bits 6:4)
+    uint8_t mdmcfg2 = this->read_register(CC1101_MDMCFG2);
+    mdmcfg2 = (mdmcfg2 & 0x8F) | ((modulation_ & 0x07) << 4);
+    this->write_register(CC1101_MDMCFG2, mdmcfg2);
+  }
+
   void update() override;
   void dump_config() override;
 
   int32_t get_rssi();
   uint8_t get_lqi();
 
-  void begin_tx();
-  void end_tx();
-  std::vector<int> get_data(int id0, int id1, int instruction, int mode);
-  void set_spa_electric_id0_input(int value);
-  void set_spa_electric_id1_input(int value);
-  void set_spa_electric_instruction_input(int value);
-  void set_spa_electric_mode_select(int value);
+  void begin_tx() {}
+  void end_tx() {}
+  std::vector<int> get_data(int id0, int id1, int instruction, int mode) { return {}; }
+  void transmit_waveform(int id0, int id1, int instruction, int mode, uint8_t repeat = 1) {
+    for (uint8_t r = 0; r < repeat; r++) {
+      this->begin_tx();
+      this->set_mode(true);
+      if (!waveform_pin_)
+        return;
+      std::vector<int> waveform = get_data(id0, id1, instruction, mode);
+      bool level = true;
+      for (auto duration : waveform) {
+        waveform_pin_->digital_write(level);
+        delayMicroseconds(duration);
+        level = !level;
+      }
+      waveform_pin_->digital_write(false); // Ensure pin is low at end
+      this->set_mode(false); // Return to RX or idle
+      this->end_tx();
+      // Optional: Add a gap between repeats if needed
+      // delay(gap_ms);
+    }
+  }
+  void set_spa_electric_id0_input(int value) {}
+  void set_spa_electric_id1_input(int value) {}
+  void set_spa_electric_instruction_input(int value) {}
+  void set_spa_electric_mode_select(int value) {}
+  void set_waveform_pin(InternalGPIOPin* pin) { waveform_pin_ = pin; } // Add this setter
 
 };
 
+// Existing action templates
 template<typename... Ts> class BeginTxAction : public Action<Ts...>, public Parented<CC1101>
 {
 public:
   void play(Ts... x) override { this->parent_->begin_tx(); }
+  void set_id0(int) {}
+  void set_id1(int) {}
+  void set_instruction(int) {}
+  void set_mode(int) {}
 };
 
 template<typename... Ts> class EndTxAction : public Action<Ts...>, public Parented<CC1101>
 {
 public:
   void play(Ts... x) override { this->parent_->end_tx(); }
+  void set_id0(int) {}
+  void set_id1(int) {}
+  void set_instruction(int) {}
+  void set_mode(int) {}
 };
 
 template<typename... Ts> class GetDataAction : public Action<Ts...>, public Parented<CC1101>
 {
 public:
-  GetDataAction(number::Number *id0, number::Number *id1, number::Number *instruction, select::Select *mode)
+  GetDataAction(number::Number *id0 = nullptr, number::Number *id1 = nullptr, number::Number *instruction = nullptr, select::Select *mode = nullptr)
     : id0_(id0), id1_(id1), instruction_(instruction), mode_(mode) {}
 
   void play(Ts... x) override {
-    int mode_value;
-    if (mode_->state == "Pool Only") {
+    int mode_value = 0;
+    if (mode_ && mode_->state == "Pool Only") {
       mode_value = 1;
-    } else if (mode_->state == "Spa Only") {
+    } else if (mode_ && mode_->state == "Spa Only") {
       mode_value = 2;
-    } else if (mode_->state == "Pool and Spa") {
+    } else if (mode_ && mode_->state == "Pool and Spa") {
       mode_value = 3;
     }
     this->parent_->get_data(
-      (int)id0_->state,
-      (int)id1_->state,
-      (int)instruction_->state,
+      id0_ ? (int)id0_->state : 0,
+      id1_ ? (int)id1_->state : 0,
+      instruction_ ? (int)instruction_->state : 0,
       mode_value
     );
   }
+  void set_id0(int) {}
+  void set_id1(int) {}
+  void set_instruction(int) {}
+  void set_mode(int) {}
 
 private:
   number::Number *id0_;
@@ -147,5 +222,28 @@ private:
   select::Select *mode_;
 };
 
-} // namespace cc1101
-} // namespace esphome
+// New TransmitWaveformAction class
+template<typename... Ts> class TransmitWaveformAction : public Action<Ts...>, public Parented<CC1101> {
+public:
+  TransmitWaveformAction()
+    : id0_(0), id1_(0), instruction_(0), mode_(0), repeat_(1) {} // default repeat = 1
+
+  void play(Ts... x) override {
+    this->parent_->transmit_waveform(id0_, id1_, instruction_, mode_, repeat_);
+  }
+  void set_id0(int v) { id0_ = v; }
+  void set_id1(int v) { id1_ = v; }
+  void set_instruction(int v) { instruction_ = v; }
+  void set_mode(int v) { mode_ = v; }
+  void set_repeat(uint8_t v) { repeat_ = v; }
+
+private:
+  int id0_;
+  int id1_;
+  int instruction_;
+  int mode_;
+  uint8_t repeat_;
+};
+
+}  // namespace cc1101
+}  // namespace esphome
