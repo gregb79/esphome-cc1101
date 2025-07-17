@@ -15,6 +15,8 @@
 
   TODO: RP2040? (USE_RP2040)
   TODO: Libretiny? (USE_LIBRETINY)
+
+  try this one
 */
 
 #include "esphome/core/log.h"
