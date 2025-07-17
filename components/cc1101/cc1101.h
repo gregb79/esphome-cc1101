@@ -37,7 +37,6 @@ protected:
   void write_register(uint8_t reg, uint8_t* value, size_t length);
   void write_register(uint8_t reg, uint8_t value);
   void write_register_burst(uint8_t reg, uint8_t* buffer, size_t length);
-  //bool send_data(const uint8_t* data, size_t length);
 
   // ELECHOUSE_CC1101 stuff
 
@@ -97,7 +96,11 @@ public:
 
   void begin_tx();
   void end_tx();
+
   std::vector<int> get_data(int id0, int id1, int instruction, int mode);
+
+  void transmit_waveform(const std::vector<int> &waveform, uint8_t repeat);
+
   void set_spa_electric_id0_input(int value);
   void set_spa_electric_id1_input(int value);
   void set_spa_electric_instruction_input(int value);
@@ -105,6 +108,7 @@ public:
 
 };
 
+// Existing action templates
 template<typename... Ts> class BeginTxAction : public Action<Ts...>, public Parented<CC1101>
 {
 public:
@@ -147,5 +151,20 @@ private:
   select::Select *mode_;
 };
 
-} // namespace cc1101
-} // namespace esphome
+// New TransmitWaveformAction class
+template<typename... Ts> class TransmitWaveformAction : public Action<Ts...>, public Parented<CC1101> {
+public:
+  TransmitWaveformAction(std::vector<int> waveform, uint8_t repeat)
+    : waveform_(std::move(waveform)), repeat_(repeat) {}
+
+  void play(Ts... x) override {
+    this->parent_->transmit_waveform(waveform_, repeat_);
+  }
+
+private:
+  std::vector<int> waveform_;
+  uint8_t repeat_;
+};
+
+}  // namespace cc1101
+}  // namespace esphome
