@@ -3,6 +3,7 @@ import esphome.config_validation as cv
 from esphome import automation, pins
 from esphome.components import sensor
 from esphome.components import spi
+from esphome.components import int as int_component  # Import int component for IntVariable IDs
 from esphome.automation import maybe_simple_id
 from esphome.const import (
     CONF_ID,
@@ -70,34 +71,47 @@ CONFIG_SCHEMA = (
     .extend(spi.spi_device_schema(cs_pin_required=True))
 )
 
+# Base action schema for begin_tx and end_tx
 CC1101_ACTION_SCHEMA = maybe_simple_id(
     {
         cv.Required(CONF_ID): cv.use_id(CC1101),
     }
 )
 
+# New schema for get_data supporting all extra keys
+GET_DATA_ACTION_SCHEMA = cv.Schema(
+    {
+        cv.Required(CONF_ID): cv.use_id(CC1101),
+        cv.Required("id0"): cv.use_id(int_component.IntVariable),
+        cv.Required("id1"): cv.use_id(int_component.IntVariable),
+        cv.Required("instruction"): cv.int_,
+        cv.Required("mode"): cv.use_id(int_component.IntVariable),
+        cv.Optional("repeat", default=1): cv.int_,
+    }
+)
+
 @automation.register_action("cc1101.begin_tx", BeginTxAction, CC1101_ACTION_SCHEMA)
 @automation.register_action("cc1101.end_tx", EndTxAction, CC1101_ACTION_SCHEMA)
-@automation.register_action("cc1101.get_data", GetDataAction, CC1101_ACTION_SCHEMA)
-
+@automation.register_action("cc1101.get_data", GetDataAction, GET_DATA_ACTION_SCHEMA)
 async def cc1101_action_to_code(config, action_id, template_arg, args):
     var = cg.new_Pvariable(action_id, template_arg)
     await cg.register_parented(var, config[CONF_ID])
-    if CONF_SPA_ELECTRIC_ID0_INPUT in config:
-        id0 = await cg.get_variable(config[CONF_SPA_ELECTRIC_ID0_INPUT])
+
+    # Only get_data has the extra keys
+    if "id0" in config:
+        id0 = await cg.get_variable(config["id0"])
         cg.add(var.set_id0(id0))
-    if CONF_SPA_ELECTRIC_ID1_INPUT in config:
-        id1 = await cg.get_variable(config[CONF_SPA_ELECTRIC_ID1_INPUT])
+
+        id1 = await cg.get_variable(config["id1"])
         cg.add(var.set_id1(id1))
-    if CONF_SPA_ELECTRIC_INSTRUCTION_INPUT in config:
-        instruction = await cg.get_variable(config[CONF_SPA_ELECTRIC_INSTRUCTION_INPUT])
-        cg.add(var.set_instruction(instruction))
-    if CONF_SPA_ELECTRIC_MODE_SELECT in config:
-        mode = await cg.get_variable(config[CONF_SPA_ELECTRIC_MODE_SELECT])
+
+        cg.add(var.set_instruction(config["instruction"]))
+
+        mode = await cg.get_variable(config["mode"])
         cg.add(var.set_mode(mode))
-    if CONF_SPA_ELECTRIC_REPEAT_INPUT in config:
-        repeat = await cg.get_variable(config[CONF_SPA_ELECTRIC_REPEAT_INPUT])
-        cg.add(var.set_repeat(repeat))
+
+        cg.add(var.set_repeat(config.get("repeat", 1)))
+
     return var
 
 async def to_code(config):
