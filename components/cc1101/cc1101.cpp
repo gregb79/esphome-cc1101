@@ -855,6 +855,7 @@ void CC1101::tx_data(int id0, int id1, int instruction, int mode) {
 
     // Log the string
     ESP_LOGD("custom", "New Vector: %s", dataString.c_str());
+    ESP_LOGI(TAG, "New Vector: %s", dataString.c_str());
 
     // Log the contents of DATACRC_TABLE in one line
     std::ostringstream oss;
