@@ -97,11 +97,12 @@ public:
 
   void begin_tx();
   void end_tx();
-  std::vector<int> get_data(int id0, int id1, int instruction, int mode);
+  std::vector<int> get_data(int id0, int id1, int instruction, int mode, int repeat);
   void set_spa_electric_id0_input(int value);
   void set_spa_electric_id1_input(int value);
   void set_spa_electric_instruction_input(int value);
   void set_spa_electric_mode_select(int value);
+  void set_spa_electric_repeat_input(int value);
 
 };
 
@@ -120,8 +121,8 @@ public:
 template<typename... Ts> class GetDataAction : public Action<Ts...>, public Parented<CC1101>
 {
 public:
-  GetDataAction(number::Number *id0, number::Number *id1, number::Number *instruction, select::Select *mode)
-    : id0_(id0), id1_(id1), instruction_(instruction), mode_(mode) {}
+  GetDataAction(number::Number *id0, number::Number *id1, number::Number *instruction, select::Select *mode, number::Number *repeat)
+    : id0_(id0), id1_(id1), instruction_(instruction), mode_(mode), repeat_(repeat) {}
 
   void play(Ts... x) override {
     int mode_value;
@@ -136,7 +137,8 @@ public:
       (int)id0_->state,
       (int)id1_->state,
       (int)instruction_->state,
-      mode_value
+      mode_value,
+      (int)repeat_->state
     );
   }
 
@@ -145,6 +147,7 @@ private:
   number::Number *id1_;
   number::Number *instruction_;
   select::Select *mode_;
+  number::Number *repeat_;
 };
 
 } // namespace cc1101
