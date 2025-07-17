@@ -321,6 +321,35 @@ uint8_t CC1101::get_lqi() {
   return this->read_register(CC1101_LQI);
 }
 
+void CC1101::set_modulation(uint8_t m) {
+  modulation_ = m;
+  // Set MDMCFG2 for modulation (bits 6:4)
+  uint8_t mdmcfg2 = this->read_register(CC1101_MDMCFG2);
+  mdmcfg2 = (mdmcfg2 & 0x8F) | ((modulation_ & 0x07) << 4);
+  this->write_register(CC1101_MDMCFG2, mdmcfg2);
+}
+
+void CC1101::transmit_waveform(int id0, int id1, int instruction, int mode, uint8_t repeat) {
+  for (uint8_t r = 0; r < repeat; r++) {
+    this->begin_tx();
+    this->set_mode(true);
+    if (!waveform_pin_)
+      return;
+    std::vector<int> waveform = get_data(id0, id1, instruction, mode);
+    bool level = true;
+    for (auto duration : waveform) {
+      waveform_pin_->digital_write(level);
+      delayMicroseconds(duration);
+      level = !level;
+    }
+    waveform_pin_->digital_write(false); // Ensure pin is low at end
+    this->set_mode(false); // Return to RX or idle
+    this->end_tx();
+    // Optional: Add a gap between repeats if needed
+    // delay(gap_ms);
+  }
+}
+
 void CC1101::dump_config() {
   ESP_LOGCONFIG(TAG, "CC1101:");
   ESP_LOGCONFIG(TAG, "  Frequency: %u kHz", this->frequency_);
@@ -328,11 +357,6 @@ void CC1101::dump_config() {
   ESP_LOGCONFIG(TAG, "  Modulation: %u", this->modulation_);
   ESP_LOGCONFIG(TAG, "  Deviation: %f", this->deviation_);
   ESP_LOGCONFIG(TAG, "  GDO0 pin: %p", this->gdo0_);
-  ESP_LOGCONFIG(TAG, "  GDO2 pin: %p", this->gdo2_);
-}
-
-}  // namespace cc1101
-}  // namespace esphome
   ESP_LOGCONFIG(TAG, "  GDO2 pin: %p", this->gdo2_);
 }
 
