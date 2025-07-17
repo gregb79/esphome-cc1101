@@ -76,37 +76,7 @@ protected:
   void split_MDMCFG4();
 
 public:
-  CC1101()
-    : gdo0_(nullptr),
-      gdo2_(nullptr),
-      bandwidth_(200),
-      frequency_(433920),
-      rssi_sensor_(nullptr),
-      lqi_sensor_(nullptr),
-      partnum_(0),
-      version_(0),
-      last_rssi_(INT_MIN),
-      last_lqi_(INT_MIN),
-      mode_(false),
-      modulation_(0), // Default to FSK, but allow override
-      deviation_(160),
-      frend0_(0),
-      chan_(0),
-      last_pa_(0),
-      m4RxBw_(0),
-      m4DaRa_(0),
-      m2DCOFF_(0),
-      m2MODFM_(0),
-      m2MANCH_(0),
-      m2SYNCM_(0),
-      m1FEC_(0),
-      m1PRE_(0),
-      m1CHSP_(0),
-      trxstate_(0)
-  {
-    // ...existing code...
-  }
-
+  CC1101();
   void set_config_gdo0(InternalGPIOPin* pin);
   void set_config_gdo2(InternalGPIOPin* pin);
   void set_config_bandwidth(uint32_t bandwidth);
@@ -116,20 +86,7 @@ public:
   void set_config_rssi_sensor(sensor::Sensor* rssi_sensor);
   void set_config_lqi_sensor(sensor::Sensor* lqi_sensor);
 
-  void setup() override {
-    // ...existing setup code...
-    set_modulation(modulation_);
-    // ...existing setup code...
-  }
-
-  void set_modulation(uint8_t m) {
-    modulation_ = m;
-    // Set MDMCFG2 for modulation (bits 6:4)
-    uint8_t mdmcfg2 = this->read_register(CC1101_MDMCFG2);
-    mdmcfg2 = (mdmcfg2 & 0x8F) | ((modulation_ & 0x07) << 4);
-    this->write_register(CC1101_MDMCFG2, mdmcfg2);
-  }
-
+  void setup() override;
   void update() override;
   void dump_config() override;
 
@@ -139,32 +96,24 @@ public:
   void begin_tx() {}
   void end_tx() {}
   std::vector<int> get_data(int id0, int id1, int instruction, int mode) { return {}; }
-  void transmit_waveform(int id0, int id1, int instruction, int mode, uint8_t repeat = 1) {
-    for (uint8_t r = 0; r < repeat; r++) {
-      this->begin_tx();
-      this->set_mode(true);
-      if (!waveform_pin_)
-        return;
-      std::vector<int> waveform = get_data(id0, id1, instruction, mode);
-      bool level = true;
-      for (auto duration : waveform) {
-        waveform_pin_->digital_write(level);
-        delayMicroseconds(duration);
-        level = !level;
-      }
-      waveform_pin_->digital_write(false); // Ensure pin is low at end
-      this->set_mode(false); // Return to RX or idle
-      this->end_tx();
-      // Optional: Add a gap between repeats if needed
-      // delay(gap_ms);
-    }
-  }
+  void transmit_waveform(int id0, int id1, int instruction, int mode, uint8_t repeat = 1);
+
+  void set_modulation(uint8_t m); // Only declare here
+
   void set_spa_electric_id0_input(int value) {}
   void set_spa_electric_id1_input(int value) {}
   void set_spa_electric_instruction_input(int value) {}
   void set_spa_electric_mode_select(int value) {}
   void set_waveform_pin(InternalGPIOPin* pin) { waveform_pin_ = pin; } // Add this setter
 
+  // SPI helpers
+  void spi_begin();
+  void spi_end();
+  uint8_t spi_transfer(uint8_t data);
+
+protected:
+  InternalGPIOPin* waveform_pin_{nullptr}; // Add this line
+  uint8_t band_; // Add this line
 };
 
 // Existing action templates
@@ -196,6 +145,57 @@ public:
 
   void play(Ts... x) override {
     int mode_value = 0;
+    if (mode_ && mode_->state == "Pool Only") {
+      mode_value = 1;
+    } else if (mode_ && mode_->state == "Spa Only") {
+      mode_value = 2;
+    } else if (mode_ && mode_->state == "Pool and Spa") {
+      mode_value = 3;
+    }
+    this->parent_->get_data(
+      id0_ ? (int)id0_->state : 0,
+      id1_ ? (int)id1_->state : 0,
+      instruction_ ? (int)instruction_->state : 0,
+      mode_value
+    );
+  }
+  void set_id0(int) {}
+  void set_id1(int) {}
+  void set_instruction(int) {}
+  void set_mode(int) {}
+
+private:
+  number::Number *id0_;
+  number::Number *id1_;
+  number::Number *instruction_;
+  select::Select *mode_;
+};
+
+// New TransmitWaveformAction class
+template<typename... Ts> class TransmitWaveformAction : public Action<Ts...>, public Parented<CC1101> {
+public:
+  TransmitWaveformAction()
+    : id0_(0), id1_(0), instruction_(0), mode_(0), repeat_(1) {} // default repeat = 1
+
+  void play(Ts... x) override {
+    this->parent_->transmit_waveform(id0_, id1_, instruction_, mode_, repeat_);
+  }
+  void set_id0(int v) { id0_ = v; }
+  void set_id1(int v) { id1_ = v; }
+  void set_instruction(int v) { instruction_ = v; }
+  void set_mode(int v) { mode_ = v; }
+  void set_repeat(uint8_t v) { repeat_ = v; }
+
+private:
+  int id0_;
+  int id1_;
+  int instruction_;
+  int mode_;
+  uint8_t repeat_;
+};
+
+}  // namespace cc1101
+}  // namespace esphome
     if (mode_ && mode_->state == "Pool Only") {
       mode_value = 1;
     } else if (mode_ && mode_->state == "Spa Only") {
