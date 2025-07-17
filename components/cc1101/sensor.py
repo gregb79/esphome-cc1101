@@ -95,17 +95,17 @@ async def cc1101_action_to_code(config, action_id, template_arg, args):
     var = cg.new_Pvariable(action_id, template_arg)
     await cg.register_parented(var, config[CONF_ID])
 
-    # Only get_data has the extra keys
+    # get_data has these extra keys
     if "id0" in config:
-        id0 = await cg.get_variable(config["id0"])
+        id0 = await cg.templatable(config["id0"], args, cg.int_)
         cg.add(var.set_id0(id0))
 
-        id1 = await cg.get_variable(config["id1"])
+        id1 = await cg.templatable(config["id1"], args, cg.int_)
         cg.add(var.set_id1(id1))
 
         cg.add(var.set_instruction(config["instruction"]))
 
-        mode = await cg.get_variable(config["mode"])
+        mode = await cg.templatable(config["mode"], args, cg.int_)
         cg.add(var.set_mode(mode))
 
         cg.add(var.set_repeat(config.get("repeat", 1)))
