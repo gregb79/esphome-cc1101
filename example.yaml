@@ -1,0 +1,19 @@
+button:
+  - platform: template
+    name: "Pool Light On $devicenameiris"
+    on_press:
+      then:
+        - if:
+            condition:
+              binary_sensor.is_on: pool_light_status
+            then:
+              - logger.log: "The Pool Light Is Already On !!"
+            else:
+              - cc1101.transmit_waveform:
+                  id: transceiver
+                  id0: !lambda 'return id(int_id0);'
+                  id1: !lambda 'return id(int_id1);'
+                  instruction: 17
+                  mode: !lambda 'return id(int_mode);'
+                  repeat: 5
+              - logger.log: "The Pool Light Was Turned On !!"
