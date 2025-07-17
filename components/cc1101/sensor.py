@@ -29,13 +29,23 @@ CONF_SPA_ELECTRIC_ID1_INPUT = "spa_electric_id1_input"
 CONF_SPA_ELECTRIC_INSTRUCTION_INPUT = "spa_electric_instruction_input"
 CONF_SPA_ELECTRIC_MODE_SELECT = "spa_electric_mode_select"
 
+# New action keys
+CONF_ID0 = "id0"
+CONF_ID1 = "id1"
+CONF_INSTRUCTION = "instruction"
+CONF_MODE = "mode"
+CONF_REPEAT = "repeat"
 
 cc1101_ns = cg.esphome_ns.namespace("cc1101")
 CC1101 = cc1101_ns.class_("CC1101", sensor.Sensor, cg.PollingComponent, spi.SPIDevice)
 
+# Existing actions
 BeginTxAction = cc1101_ns.class_("BeginTxAction", automation.Action)
 EndTxAction = cc1101_ns.class_("EndTxAction", automation.Action)
-GetDataAction = cc1101_ns.class_("GetDataAction", automation.Action) 
+GetDataAction = cc1101_ns.class_("GetDataAction", automation.Action)
+
+# New transmit waveform action
+TransmitWaveformAction = cc1101_ns.class_("TransmitWaveformAction", automation.Action)
 
 CONFIG_SCHEMA = (
     cv.Schema(
@@ -52,15 +62,15 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_SPA_ELECTRIC_INSTRUCTION_INPUT): cv.int_,
             cv.Optional(CONF_SPA_ELECTRIC_MODE_SELECT): cv.int_,
             cv.Optional(CONF_RSSI): sensor.sensor_schema(
-                unit_of_measurement = UNIT_DECIBEL_MILLIWATT,
-                accuracy_decimals = 0,
-                device_class = DEVICE_CLASS_SIGNAL_STRENGTH,
-                state_class = STATE_CLASS_MEASUREMENT,
+                unit_of_measurement=UNIT_DECIBEL_MILLIWATT,
+                accuracy_decimals=0,
+                device_class=DEVICE_CLASS_SIGNAL_STRENGTH,
+                state_class=STATE_CLASS_MEASUREMENT,
             ),
             cv.Optional(CONF_LQI): sensor.sensor_schema(
-                unit_of_measurement = UNIT_EMPTY,
-                accuracy_decimals = 0,
-                state_class = STATE_CLASS_MEASUREMENT,
+                unit_of_measurement=UNIT_EMPTY,
+                accuracy_decimals=0,
+                state_class=STATE_CLASS_MEASUREMENT,
             ),
         }
     )
@@ -74,10 +84,10 @@ CC1101_ACTION_SCHEMA = maybe_simple_id(
     }
 )
 
+# Register existing actions
 @automation.register_action("cc1101.begin_tx", BeginTxAction, CC1101_ACTION_SCHEMA)
 @automation.register_action("cc1101.end_tx", EndTxAction, CC1101_ACTION_SCHEMA)
 @automation.register_action("cc1101.get_data", GetDataAction, CC1101_ACTION_SCHEMA)
-
 async def cc1101_action_to_code(config, action_id, template_arg, args):
     var = cg.new_Pvariable(action_id, template_arg)
     await cg.register_parented(var, config[CONF_ID])
@@ -93,6 +103,29 @@ async def cc1101_action_to_code(config, action_id, template_arg, args):
     if CONF_SPA_ELECTRIC_MODE_SELECT in config:
         mode = await cg.get_variable(config[CONF_SPA_ELECTRIC_MODE_SELECT])
         cg.add(var.set_mode(mode))
+    return var
+
+# Register new transmit_waveform action
+TRANSMIT_WAVEFORM_SCHEMA = maybe_simple_id(
+    {
+        cv.Required(CONF_ID): cv.use_id(CC1101),
+        cv.Required(CONF_ID0): cv.templatable(cv.int_),
+        cv.Required(CONF_ID1): cv.templatable(cv.int_),
+        cv.Required(CONF_INSTRUCTION): cv.templatable(cv.int_),
+        cv.Required(CONF_MODE): cv.templatable(cv.int_),
+        cv.Optional(CONF_REPEAT, default=1): cv.templatable(cv.uint8_t),
+    }
+)
+
+@automation.register_action("cc1101.transmit_waveform", TransmitWaveformAction, TRANSMIT_WAVEFORM_SCHEMA)
+async def transmit_waveform_to_code(config, action_id, template_arg, args):
+    var = cg.new_Pvariable(action_id, template_arg)
+    await cg.register_parented(var, config[CONF_ID])
+    for key in (CONF_ID0, CONF_ID1, CONF_INSTRUCTION, CONF_MODE, CONF_REPEAT):
+        if key in config:
+            val = config[key]
+            expr = await cg.templatable(val, args, int)
+            cg.add(getattr(var, f"set_{key}")(expr))
     return var
 
 async def to_code(config):
