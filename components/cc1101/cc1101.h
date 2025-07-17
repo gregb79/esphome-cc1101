@@ -37,10 +37,8 @@ protected:
   void write_register(uint8_t reg, uint8_t* value, size_t length);
   void write_register(uint8_t reg, uint8_t value);
   void write_register_burst(uint8_t reg, uint8_t* buffer, size_t length);
-  //bool send_data(const uint8_t* data, size_t length);
 
   // ELECHOUSE_CC1101 stuff
-
   bool mode_;
   uint8_t modulation_;
   float deviation_;
@@ -103,52 +101,62 @@ public:
   void set_spa_electric_instruction_input(int value);
   void set_spa_electric_mode_select(int value);
   void set_spa_electric_repeat_input(int value);
-
 };
 
-template<typename... Ts> class BeginTxAction : public Action<Ts...>, public Parented<CC1101>
-{
+// BEGIN TX
+template<typename... Ts>
+class BeginTxAction : public Action<Ts...>, public Parented<CC1101> {
 public:
   void play(Ts... x) override { this->parent_->begin_tx(); }
 };
 
-template<typename... Ts> class EndTxAction : public Action<Ts...>, public Parented<CC1101>
-{
+// END TX
+template<typename... Ts>
+class EndTxAction : public Action<Ts...>, public Parented<CC1101> {
 public:
   void play(Ts... x) override { this->parent_->end_tx(); }
 };
 
-template<typename... Ts> class GetDataAction : public Action<Ts...>, public Parented<CC1101>
-{
+// GET DATA ACTION
+template<typename... Ts>
+class GetDataAction : public Action<Ts...>, public Parented<CC1101> {
 public:
-  GetDataAction(number::Number *id0, number::Number *id1, number::Number *instruction, select::Select *mode, number::Number *repeat)
-    : id0_(id0), id1_(id1), instruction_(instruction), mode_(mode), repeat_(repeat) {}
+  GetDataAction() = default;
+
+  void set_id0(number::Number *id0) { id0_ = id0; }
+  void set_id1(number::Number *id1) { id1_ = id1; }
+  void set_instruction(number::Number *instruction) { instruction_ = instruction; }
+  void set_mode(select::Select *mode) { mode_ = mode; }
+  void set_repeat(number::Number *repeat) { repeat_ = repeat; }
 
   void play(Ts... x) override {
-    int mode_value;
-    if (mode_->state == "Pool Only") {
-      mode_value = 1;
-    } else if (mode_->state == "Spa Only") {
-      mode_value = 2;
-    } else if (mode_->state == "Pool and Spa") {
-      mode_value = 3;
+    int mode_value = 0;
+    if (mode_ != nullptr) {
+      if (mode_->state == "Pool Only") {
+        mode_value = 1;
+      } else if (mode_->state == "Spa Only") {
+        mode_value = 2;
+      } else if (mode_->state == "Pool and Spa") {
+        mode_value = 3;
+      }
     }
+
     this->parent_->get_data(
-      (int)id0_->state,
-      (int)id1_->state,
-      (int)instruction_->state,
+      static_cast<int>(id0_ ? id0_->state : 0),
+      static_cast<int>(id1_ ? id1_->state : 0),
+      static_cast<int>(instruction_ ? instruction_->state : 0),
       mode_value,
-      (int)repeat_->state
+      static_cast<int>(repeat_ ? repeat_->state : 1)
     );
   }
 
 private:
-  number::Number *id0_;
-  number::Number *id1_;
-  number::Number *instruction_;
-  select::Select *mode_;
-  number::Number *repeat_;
+  number::Number *id0_{nullptr};
+  number::Number *id1_{nullptr};
+  number::Number *instruction_{nullptr};
+  select::Select *mode_{nullptr};
+  number::Number *repeat_{nullptr};
 };
 
-} // namespace cc1101
-} // namespace esphome
+}  // namespace cc1101
+}  // namespace esphome
