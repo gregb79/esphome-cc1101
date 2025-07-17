@@ -806,9 +806,11 @@ std::vector<int> CC1101::get_data(int id0, int id1, int instruction, int mode) {
 
     return DataVector;
 }
-
 void CC1101::tx_data(int id0, int id1, int instruction, int mode) {
-  ESP_LOGI(TAG, "CC1101 Tx Data Started");
+ESP_LOGW(TAG, "!!! tx_data() called");
+ESP_LOGW(TAG, "==> tx_data called");
+ESP_LOGI("cc1101", "Simple test log I");
+ESP_LOGD("cc1101", "Simple test log D");
     uint8_t DATA_TABLE[12] = {0xAA, 0XAA, 0XAA, 0XAA, 0x2D, 0xD4, 0xF9, 203, 0x00, 17, 3, 0x00};
     uint8_t DATACRC_TABLE[12] = {0x00, 0X00, 0X00, 0X00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
