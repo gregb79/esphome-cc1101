@@ -98,6 +98,7 @@ public:
   void begin_tx();
   void end_tx();
   std::vector<int> get_data(int id0, int id1, int instruction, int mode);
+  std::vector<int> tx_data(int id0, int id1, int instruction, int mode);
   void set_spa_electric_id0_input(int value);
   void set_spa_electric_id1_input(int value);
   void set_spa_electric_instruction_input(int value);
@@ -146,6 +147,38 @@ private:
   number::Number *instruction_;
   select::Select *mode_;
 };
+
+template<typename... Ts> class TxDataAction : public Action<Ts...>, public Parented<CC1101>
+{
+
+public:
+  TxDataAction(number::Number *id0, number::Number *id1, number::Number *instruction, select::Select *mode)
+    : id0_(id0), id1_(id1), instruction_(instruction), mode_(mode) {}
+
+  void play(Ts... x) override {
+    int mode_value;
+    if (mode_->state == "Pool Only") {
+      mode_value = 1;
+    } else if (mode_->state == "Spa Only") {
+      mode_value = 2;
+    } else if (mode_->state == "Pool and Spa") {
+      mode_value = 3;
+    }
+    this->parent_->tx_data(
+      (int)id0_->state,
+      (int)id1_->state,
+      (int)instruction_->state,
+      mode_value
+    );
+  }
+
+private:
+  number::Number *id0_;
+  number::Number *id1_;
+  number::Number *instruction_;
+  select::Select *mode_;
+};
+
 
 } // namespace cc1101
 } // namespace esphome
