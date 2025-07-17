@@ -745,7 +745,7 @@ void CC1101::set_spa_electric_mode_select(int value) {
   // Store the value or use it as needed
 }
 
-std::vector<int> CC1101::get_data(int id0, int id1, int instruction, int mode) {
+std::vector<int> CC1101::get_data(int id0, int id1, int instruction, int mode, int repeat) {
     uint8_t DATA_TABLE[12] = {0xAA, 0XAA, 0XAA, 0XAA, 0x2D, 0xD4, 0xF9, 203, 0x00, 17, 3, 0x00};
     uint8_t DATACRC_TABLE[12] = {0x00, 0X00, 0X00, 0X00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
@@ -804,7 +804,27 @@ std::vector<int> CC1101::get_data(int id0, int id1, int instruction, int mode) {
     }
     ESP_LOGI(TAG, "DATACRC_TABLE contents: %s", oss.str().c_str());
 
-    return DataVector;
+   // return DataVector;
+
+// transmit directly from code instead of using transmitt_raw feature
+  
+    begin_tx();  // Put CC1101 into TX mode
+
+    for (int r = 0; r < repeat; r++) {
+      // Transmit pulse sequence on GDO0 pin
+      for (int pulse : DataVector) {
+          bool level = (pulse > 0);
+          gdo0_->digital_write(level);
+          delayMicroseconds(abs(pulse));
+      }
+
+       // Optional small delay between repeats
+       // delay(10);
+    }
+
+
+    end_tx();  // Take CC1101 out of TX mode
+
 }
 
 } // namespace cc1101
