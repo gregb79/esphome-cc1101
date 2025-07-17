@@ -151,43 +151,43 @@ private:
 template<typename... Ts> class TxDataAction : public Action<Ts...>, public Parented<CC1101>
 {
 public:
-  // Default constructor required for ESPHome
-  TxDataAction() : id0_(nullptr), id1_(nullptr), instruction_(nullptr), mode_(nullptr) {}
+  TxDataAction() : id0_(nullptr), id1_(nullptr), instruction_(nullptr), mode_(nullptr),
+                   id0_template_(nullptr), id1_template_(nullptr), instruction_template_(nullptr), mode_template_(nullptr) {}
 
   TxDataAction(number::Number *id0, number::Number *id1, number::Number *instruction, select::Select *mode)
     : id0_(id0), id1_(id1), instruction_(instruction), mode_(mode) {}
 
   void play(Ts... x) override {
-    int mode_value;
-    if (mode_ && mode_->state == "Pool Only") {
-      mode_value = 1;
-    } else if (mode_ && mode_->state == "Spa Only") {
-      mode_value = 2;
-    } else if (mode_ && mode_->state == "Pool and Spa") {
-      mode_value = 3;
-    } else {
-      mode_value = 1;
-    }
-    if (id0_ && id1_ && instruction_ && mode_) {
-      this->parent_->tx_data(
-        (int)id0_->state,
-        (int)id1_->state,
-        (int)instruction_->state,
-        mode_value
-      );
-    }
+    int id0 = id0_ ? (int)id0_->state : (id0_template_ ? id0_template_->execute(x...) : 0);
+    int id1 = id1_ ? (int)id1_->state : (id1_template_ ? id1_template_->execute(x...) : 0);
+    int instruction = instruction_ ? (int)instruction_->state : (instruction_template_ ? instruction_template_->execute(x...) : 0);
+    int mode = mode_ ? (int)mode_->state : (mode_template_ ? mode_template_->execute(x...) : 0);
+
+    this->parent_->tx_data(id0, id1, instruction, mode);
   }
 
+  // Setters for global/number/select
   void set_id0(number::Number *id0) { id0_ = id0; }
   void set_id1(number::Number *id1) { id1_ = id1; }
   void set_instruction(number::Number *instruction) { instruction_ = instruction; }
   void set_mode(select::Select *mode) { mode_ = mode; }
+
+  // Setters for templates
+  void set_id0_template(esphome::optional<esphome::TemplateArg<int, Ts...>> *tpl) { id0_template_ = tpl; }
+  void set_id1_template(esphome::optional<esphome::TemplateArg<int, Ts...>> *tpl) { id1_template_ = tpl; }
+  void set_instruction_template(esphome::optional<esphome::TemplateArg<int, Ts...>> *tpl) { instruction_template_ = tpl; }
+  void set_mode_template(esphome::optional<esphome::TemplateArg<int, Ts...>> *tpl) { mode_template_ = tpl; }
 
 private:
   number::Number *id0_;
   number::Number *id1_;
   number::Number *instruction_;
   select::Select *mode_;
+  // For direct YAML arguments
+  esphome::optional<esphome::TemplateArg<int, Ts...>> *id0_template_;
+  esphome::optional<esphome::TemplateArg<int, Ts...>> *id1_template_;
+  esphome::optional<esphome::TemplateArg<int, Ts...>> *instruction_template_;
+  esphome::optional<esphome::TemplateArg<int, Ts...>> *mode_template_;
 };
 
 
