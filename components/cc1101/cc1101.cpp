@@ -868,7 +868,7 @@ std::vector<int> CC1101::tx_data(int id0, int id1, int instruction, int mode) {
 
     //return DataVector;
     // transmit directly from code instead of using transmitt_raw feature
-    int repeat = 5
+    int repeat = 5;
     for (int r = 0; r < repeat; r++) {
       // Transmit pulse sequence on GDO0 pin
       for (int pulse : DataVector) {
