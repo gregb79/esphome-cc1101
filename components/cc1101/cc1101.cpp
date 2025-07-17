@@ -807,5 +807,80 @@ std::vector<int> CC1101::get_data(int id0, int id1, int instruction, int mode) {
     return DataVector;
 }
 
+std::vector<int> CC1101::tx_data(int id0, int id1, int instruction, int mode) {
+    uint8_t DATA_TABLE[12] = {0xAA, 0XAA, 0XAA, 0XAA, 0x2D, 0xD4, 0xF9, 203, 0x00, 17, 3, 0x00};
+    uint8_t DATACRC_TABLE[12] = {0x00, 0X00, 0X00, 0X00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+    DATA_TABLE[6] = id0;   // ID0
+    DATA_TABLE[7] = id1;   // ID1
+    DATA_TABLE[9] = instruction;    // INSTRUCTION
+    DATA_TABLE[10] = mode;    // MODE
+
+    // Calculate the checksum
+    unsigned int sum = 0;
+    for (int i = 4; i < 11; i++) {
+        sum += DATA_TABLE[i];
+    }
+    unsigned char checksum = static_cast<unsigned char>(-sum);
+    DATA_TABLE[11] = checksum;
+
+    // Copy data to DATACRC_TABLE
+    for (int h = 0; h < 12; h++) {
+        DATACRC_TABLE[h] = DATA_TABLE[h];
+    }
+
+    // Create a vector to store the data
+    std::vector<int> DataVector;
+    for (int i = 0; i < 12; ++i) {
+        uint8_t byte = DATACRC_TABLE[i];
+        for (int j = 7; j >= 0; --j) {
+            if (byte & (1 << j)) {
+                DataVector.push_back(105);  // High bit (1) corresponds to 105 microseconds
+            } else {
+                DataVector.push_back(-104); // Low bit (0) corresponds to -104 microseconds
+            }
+        }
+    }
+
+    // Convert DataVector elements to a single string
+    std::string dataString;
+    for (int value : DataVector) {
+        dataString += std::to_string(value) + ", ";
+    }
+
+    // Remove the trailing comma and space
+    if (!dataString.empty()) {
+        dataString.erase(dataString.length() - 2);
+    }
+
+    // Log the string
+    ESP_LOGD("custom", "New Vector: %s", dataString.c_str());
+
+    // Log the contents of DATACRC_TABLE in one line
+    std::ostringstream oss;
+    for (int i = 0; i < sizeof(DATACRC_TABLE); i++) {
+        oss << "0x" << std::hex << std::uppercase << static_cast<int>(DATACRC_TABLE[i]);
+        if (i < sizeof(DATACRC_TABLE) - 1) {
+            oss << ", ";
+        }
+    }
+    ESP_LOGI(TAG, "DATACRC_TABLE contents: %s", oss.str().c_str());
+
+    //return DataVector;
+    // transmit directly from code instead of using transmitt_raw feature
+    int repeat = 5
+    for (int r = 0; r < repeat; r++) {
+      // Transmit pulse sequence on GDO0 pin
+      for (int pulse : DataVector) {
+          bool level = (pulse > 0);
+          gdo0_->digital_write(level);
+          delayMicroseconds(abs(pulse));
+      }
+
+       // Optional small delay between repeats
+       // delay(10);
+    }
+}
+
 } // namespace cc1101
 } // namespace esphome
