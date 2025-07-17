@@ -150,27 +150,38 @@ private:
 
 template<typename... Ts> class TxDataAction : public Action<Ts...>, public Parented<CC1101>
 {
-
 public:
+  // Default constructor required for ESPHome
+  TxDataAction() : id0_(nullptr), id1_(nullptr), instruction_(nullptr), mode_(nullptr) {}
+
   TxDataAction(number::Number *id0, number::Number *id1, number::Number *instruction, select::Select *mode)
     : id0_(id0), id1_(id1), instruction_(instruction), mode_(mode) {}
 
   void play(Ts... x) override {
     int mode_value;
-    if (mode_->state == "Pool Only") {
+    if (mode_ && mode_->state == "Pool Only") {
       mode_value = 1;
-    } else if (mode_->state == "Spa Only") {
+    } else if (mode_ && mode_->state == "Spa Only") {
       mode_value = 2;
-    } else if (mode_->state == "Pool and Spa") {
+    } else if (mode_ && mode_->state == "Pool and Spa") {
       mode_value = 3;
+    } else {
+      mode_value = 1;
     }
-    this->parent_->tx_data(
-      (int)id0_->state,
-      (int)id1_->state,
-      (int)instruction_->state,
-      mode_value
-    );
+    if (id0_ && id1_ && instruction_ && mode_) {
+      this->parent_->tx_data(
+        (int)id0_->state,
+        (int)id1_->state,
+        (int)instruction_->state,
+        mode_value
+      );
+    }
   }
+
+  void set_id0(number::Number *id0) { id0_ = id0; }
+  void set_id1(number::Number *id1) { id1_ = id1; }
+  void set_instruction(number::Number *instruction) { instruction_ = instruction; }
+  void set_mode(select::Select *mode) { mode_ = mode; }
 
 private:
   number::Number *id0_;
