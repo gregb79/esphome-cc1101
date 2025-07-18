@@ -807,10 +807,7 @@ std::vector<int> CC1101::get_data(int id0, int id1, int instruction, int mode) {
     return DataVector;
 }
 void CC1101::tx_data(int id0, int id1, int instruction, int mode) {
-ESP_LOGW(TAG, "!!! tx_data() called");
-ESP_LOGW(TAG, "==> tx_data called");
-ESP_LOGI("cc1101", "Simple test log I");
-ESP_LOGD("cc1101", "Simple test log D");
+ESP_LOGD(TAG, "tx_data() called");
     uint8_t DATA_TABLE[12] = {0xAA, 0XAA, 0XAA, 0XAA, 0x2D, 0xD4, 0xF9, 203, 0x00, 17, 3, 0x00};
     uint8_t DATACRC_TABLE[12] = {0x00, 0X00, 0X00, 0X00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
@@ -857,8 +854,7 @@ ESP_LOGD("cc1101", "Simple test log D");
     }
 
     // Log the string
-    ESP_LOGD("custom", "New Vector: %s", dataString.c_str());
-    ESP_LOGI(TAG, "New Vector: %s", dataString.c_str());
+    ESP_LOGD(TAG, "New Vector: %s", dataString.c_str());
 
     // Log the contents of DATACRC_TABLE in one line
     std::ostringstream oss;
@@ -884,8 +880,6 @@ ESP_LOGD("cc1101", "Simple test log D");
        // Optional small delay between repeats
        // delay(10);
     }
-
-  ESP_LOGI(TAG, "CC1101 Tx Data End");
 }
 
 } // namespace cc1101
