@@ -92,6 +92,9 @@ public:
   void update() override;
   void dump_config() override;
 
+  uint32_t read_frequency_from_registers();
+  int read_modulation_from_register();
+  float read_deviation_from_register();
   int32_t get_rssi();
   uint8_t get_lqi();
 
