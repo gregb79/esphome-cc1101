@@ -103,6 +103,7 @@ public:
   void set_spa_electric_id1_input(int value);
   void set_spa_electric_instruction_input(int value);
   void set_spa_electric_mode_select(int value);
+  void get_info();
 
 };
 
@@ -117,6 +118,13 @@ template<typename... Ts> class EndTxAction : public Action<Ts...>, public Parent
 public:
   void play(Ts... x) override { this->parent_->end_tx(); }
 };
+
+template<typename... Ts> class GetInfoAction : public Action<Ts...>, public Parented<CC1101>
+{
+public:
+  void play(Ts... x) override { this->parent_->get_info(); }
+};
+
 
 template<typename... Ts> class GetDataAction : public Action<Ts...>, public Parented<CC1101>
 {
