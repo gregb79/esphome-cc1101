@@ -761,10 +761,7 @@ void CC1101::get_info()
   ESP_LOGI(TAG, "  Frequency: %u KHz", myfreq0);  
   ESP_LOGI(TAG, "  Modulation: %d (%s)", mymdmcfg2);
   ESP_LOGI(TAG, "  Deviation: %.2f kHz", mydevi);
-  
-  
-  
-  
+    
   const char *mod_names[] = {"2-FSK", "GFSK", "ASK/OOK", "4-FSK", "MSK"};
 
   ESP_LOGI(TAG, "Current CC1101 Register Values:");
