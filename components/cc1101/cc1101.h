@@ -97,6 +97,7 @@ public:
   void setup() override;
   void update() override;
   void dump_config() override;
+  void get_current_details();
 
   int32_t get_rssi();
   uint8_t get_lqi();
