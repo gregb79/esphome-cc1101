@@ -882,5 +882,45 @@ ESP_LOGD(TAG, "tx_data() called");
     }
 }
 
+void CC1101::get_current_details() {
+  uint32_t freq_hw = this->read_frequency_from_registers();
+  int mod_hw = this->read_modulation_from_register();
+  float dev_hw = this->read_deviation_from_register();
+
+  const char *mod_names[] = {"2-FSK", "GFSK", "ASK/OOK", "4-FSK", "MSK"};
+
+  ESP_LOGI(TAG, "Current CC1101 Register Values:");
+  ESP_LOGI(TAG, "  Frequency: %u KHz", freq_hw);
+  ESP_LOGI(TAG, "  Modulation: %d (%s)", mod_hw, (mod_hw <= 4 ? mod_names[mod_hw] : "Unknown"));
+  ESP_LOGI(TAG, "  Deviation: %.2f kHz", dev_hw);
+}
+
+uint32_t CC1101::read_frequency_from_registers() {
+  uint8_t freq2 = this->read_config_register(CC1101_FREQ2);
+  uint8_t freq1 = this->read_config_register(CC1101_FREQ1);
+  uint8_t freq0 = this->read_config_register(CC1101_FREQ0);
+
+  uint32_t freq_word = ((uint32_t)freq2 << 16) | ((uint32_t)freq1 << 8) | freq0;
+
+  float frequency = (freq_word * 26.0f) / 65536.0f;  // in MHz
+
+  return static_cast<uint32_t>(frequency * 1000);  // return in KHz
+}
+
+int CC1101::read_modulation_from_register() {
+  uint8_t mdmcfg2 = this->read_config_register(CC1101_MDMCFG2);
+  return (mdmcfg2 & 0x70) >> 4;
+}
+
+float CC1101::read_deviation_from_register() {
+  uint8_t devi = this->read_config_register(CC1101_DEVIATN);
+  uint8_t e = (devi >> 4) & 0x07;
+  uint8_t m = devi & 0x07;
+
+  return (pow(2, e) * (8 + m) * 625.0f) / 1000.0f;  // return in kHz
+}
+
+
+
 } // namespace cc1101
 } // namespace esphome
