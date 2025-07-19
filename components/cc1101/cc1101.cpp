@@ -762,12 +762,12 @@ void CC1101::get_info()
   ESP_LOGI(TAG, "  Modulation: %d (%s)", mymdmcfg2);
   ESP_LOGI(TAG, "  Deviation: %.2f kHz", mydevi);
     
-  const char *mod_names[] = {"2-FSK", "GFSK", "ASK/OOK", "4-FSK", "MSK"};
+  // const char *mod_names[] = {"2-FSK", "GFSK", "ASK/OOK", "4-FSK", "MSK"};
 
-  ESP_LOGI(TAG, "Current CC1101 Register Values:");
-  ESP_LOGI(TAG, "  Frequency: %u KHz", freq_hw);
-  ESP_LOGI(TAG, "  Modulation: %d (%s)", mod_hw, (mod_hw <= 4 ? mod_names[mod_hw] : "Unknown"));
-  ESP_LOGI(TAG, "  Deviation: %.2f kHz", dev_hw);
+  // ESP_LOGI(TAG, "Current CC1101 Register Values:");
+  // ESP_LOGI(TAG, "  Frequency: %u KHz", freq_hw);
+  // ESP_LOGI(TAG, "  Modulation: %d (%s)", mod_hw, (mod_hw <= 4 ? mod_names[mod_hw] : "Unknown"));
+  // ESP_LOGI(TAG, "  Deviation: %.2f kHz", dev_hw);
 }
 
 std::vector<int> CC1101::get_data(int id0, int id1, int instruction, int mode) {
