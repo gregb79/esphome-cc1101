@@ -22,6 +22,9 @@ protected:
   uint32_t frequency_;
   sensor::Sensor* rssi_sensor_;
   sensor::Sensor* lqi_sensor_;
+  sensor::Sensor* frequency_sensor_;
+  sensor::Sensor* deviation_sensor_;
+  sensor::Sensor* modulation_sensor_;
 
   uint8_t partnum_;
   uint8_t version_;
@@ -87,6 +90,9 @@ public:
   void set_config_deviation(float deviation);
   void set_config_rssi_sensor(sensor::Sensor* rssi_sensor);
   void set_config_lqi_sensor(sensor::Sensor* lqi_sensor);
+  void set_frequency_sensor(sensor::Sensor* sensor) { frequency_sensor_ = sensor; }
+  void set_deviation_sensor(sensor::Sensor* sensor) { deviation_sensor_ = sensor; }
+  void set_modulation_sensor(sensor::Sensor* sensor) { modulation_sensor_ = sensor; }
 
   void setup() override;
   void update() override;
@@ -94,6 +100,10 @@ public:
 
   int32_t get_rssi();
   uint8_t get_lqi();
+
+  uint32_t get_frequency_hz();
+  float get_deviation_hz();
+  uint8_t get_modulation_format();
 
   void begin_tx();
   void end_tx();
