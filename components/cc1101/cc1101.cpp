@@ -749,6 +749,20 @@ void CC1101::get_info()
 {
   ESP_LOGI(TAG, "Start Get Info");
 
+  this->gdo0_->setup();
+  this->gdo2_->setup();
+  this->gdo0_->pin_mode(gpio::FLAG_OUTPUT);
+  this->gdo2_->pin_mode(gpio::FLAG_INPUT);
+
+  this->spi_setup();
+
+  if(!this->reset())
+  {
+    mark_failed();
+    ESP_LOGE(TAG, "Read Reg Failed to reset CC1101 modem. Check connection.");
+    return;
+  }
+
   uint8_t myfreq2 = this->read_config_register(CC1101_FREQ2);
   uint8_t myfreq1 = this->read_config_register(CC1101_FREQ1);
   uint8_t myfreq0 = this->read_config_register(CC1101_FREQ0);
@@ -768,6 +782,11 @@ void CC1101::get_info()
   // ESP_LOGI(TAG, "  Frequency: %u KHz", freq_hw);
   // ESP_LOGI(TAG, "  Modulation: %d (%s)", mod_hw, (mod_hw <= 4 ? mod_names[mod_hw] : "Unknown"));
   // ESP_LOGI(TAG, "  Deviation: %.2f kHz", dev_hw);
+
+  this->set_rx();
+  
+  ESP_LOGI(TAG, "CC1101 Read Reg initialized.");
+  
 }
 
 std::vector<int> CC1101::get_data(int id0, int id1, int instruction, int mode) {
