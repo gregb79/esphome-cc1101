@@ -748,45 +748,41 @@ void CC1101::set_spa_electric_mode_select(int value) {
 void CC1101::get_info()
 {
   ESP_LOGI(TAG, "Start Get Info");
+  uint32_t freq_hw = this->read_frequency_from_registers();
+  int mod_hw = this->read_modulation_from_register();
+  float dev_hw = this->read_deviation_from_register();
 
-  this->gdo0_->setup();
-  this->gdo2_->setup();
-  this->gdo0_->pin_mode(gpio::FLAG_OUTPUT);
-  this->gdo2_->pin_mode(gpio::FLAG_INPUT);
+  const char *mod_names[] = {"2-FSK", "GFSK", "ASK/OOK", "4-FSK", "MSK"};
 
-  this->spi_setup();
+  ESP_LOGI(TAG, "Current CC1101 Register Values:");
+  ESP_LOGI(TAG, "  Frequency: %u KHz", freq_hw);
+  ESP_LOGI(TAG, "  Modulation: %d (%s)", mod_hw, (mod_hw <= 4 ? mod_names[mod_hw] : "Unknown"));
+  ESP_LOGI(TAG, "  Deviation: %.2f kHz", dev_hw);
+}
 
-  if(!this->reset())
-  {
-    mark_failed();
-    ESP_LOGE(TAG, "Read Reg Failed to reset CC1101 modem. Check connection.");
-    return;
-  }
+uint32_t CC1101::read_frequency_from_registers() {
+  uint8_t freq2 = this->read_config_register(CC1101_FREQ2);
+  uint8_t freq1 = this->read_config_register(CC1101_FREQ1);
+  uint8_t freq0 = this->read_config_register(CC1101_FREQ0);
 
-  uint8_t myfreq2 = this->read_config_register(CC1101_FREQ2);
-  uint8_t myfreq1 = this->read_config_register(CC1101_FREQ1);
-  uint8_t myfreq0 = this->read_config_register(CC1101_FREQ0);
-  uint8_t mymdmcfg2 = this->read_config_register(CC1101_MDMCFG2);
-  uint8_t mydevi = this->read_config_register(CC1101_DEVIATN);
+  uint32_t freq_word = ((uint32_t)freq2 << 16) | ((uint32_t)freq1 << 8) | freq0;
 
-  ESP_LOGI(TAG, "Current Register Values:");
-  ESP_LOGI(TAG, "  Frequency: %u KHz", myfreq2);
-  ESP_LOGI(TAG, "  Frequency: %u KHz", myfreq1);
-  ESP_LOGI(TAG, "  Frequency: %u KHz", myfreq0);  
-  ESP_LOGI(TAG, "  Modulation: %d (%s)", mymdmcfg2);
-  ESP_LOGI(TAG, "  Deviation: %.2f kHz", mydevi);
-    
-  // const char *mod_names[] = {"2-FSK", "GFSK", "ASK/OOK", "4-FSK", "MSK"};
+  float frequency = (freq_word * 26.0f) / 65536.0f;  // in MHz
 
-  // ESP_LOGI(TAG, "Current CC1101 Register Values:");
-  // ESP_LOGI(TAG, "  Frequency: %u KHz", freq_hw);
-  // ESP_LOGI(TAG, "  Modulation: %d (%s)", mod_hw, (mod_hw <= 4 ? mod_names[mod_hw] : "Unknown"));
-  // ESP_LOGI(TAG, "  Deviation: %.2f kHz", dev_hw);
+  return static_cast<uint32_t>(frequency * 1000);  // return in KHz
+}
 
-  this->set_rx();
-  
-  ESP_LOGI(TAG, "CC1101 Read Reg initialized.");
-  
+int CC1101::read_modulation_from_register() {
+  uint8_t mdmcfg2 = this->read_config_register(CC1101_MDMCFG2);
+  return (mdmcfg2 & 0x70) >> 4;
+}
+
+float CC1101::read_deviation_from_register() {
+  uint8_t devi = this->read_config_register(CC1101_DEVIATN);
+  uint8_t e = (devi >> 4) & 0x07;
+  uint8_t m = devi & 0x07;
+
+  return (pow(2, e) * (8 + m) * 625.0f) / 1000.0f;  // return in kHz
 }
 
 std::vector<int> CC1101::get_data(int id0, int id1, int instruction, int mode) {
