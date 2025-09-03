@@ -913,7 +913,8 @@ float CC1101::read_deviation_from_register() {
   uint8_t e = (devi >> 4) & 0x07;
   uint8_t m = devi & 0x07;
 
-  return (pow(2, e) * (8 + m) * 625.0f) / 1000.0f;  // return in kHz
+  float deviation = (float) (8 + m) * (1 << e);
+  return XTAL_FREQUENCY * deviation / (1 << 17);
 }
 
 
