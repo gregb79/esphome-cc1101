@@ -895,16 +895,12 @@ void CC1101::get_current_details() {
   ESP_LOGI(TAG, "  Deviation: %.2f kHz", dev_hw);
 }
 
-uint32_t CC1101::read_frequency_from_registers() {
-  uint8_t freq2 = this->read_config_register(CC1101_FREQ2);
-  uint8_t freq1 = this->read_config_register(CC1101_FREQ1);
-  uint8_t freq0 = this->read_config_register(CC1101_FREQ0);
-
-  uint32_t freq_word = ((uint32_t)freq2 << 16) | ((uint32_t)freq1 << 8) | freq0;
-
-  float frequency = (freq_word * 26.0f) / 65536.0f;  // in MHz
-
-  return static_cast<uint32_t>(frequency * 1000);  // return in KHz
+float CC1101::read_frequency_from_registers() {
+  uint32_t freq = 0;
+  freq |= (uint32_t) this->state_.FREQ2 << 16;
+  freq |= (uint32_t) this->state_.FREQ1 << 8;
+  freq |= (uint32_t) this->state_.FREQ0;
+  return roundf((float) XTAL_FREQUENCY * freq / (1 << 16));
 }
 
 int CC1101::read_modulation_from_register() {
