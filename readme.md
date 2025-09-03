@@ -38,3 +38,6 @@ Tested with:
 | d1_mini       | 12 | 13 | 14 | 15 | 5 |  | 4 | TX |  |
 
 SDA/SCL is not needed of course, they are just there as suggestions in case you also need I2C on such a low pin count board.
+
+Modulation Settings
+0 (000) 2-FSK, 1 (001) GFSK, 3 (011) ASK/OOK, 4(100) 4-FSK, 7(111) MSK
