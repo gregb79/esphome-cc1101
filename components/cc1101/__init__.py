@@ -1,73 +1,137 @@
-# See: https://esphome.io/guides/contributing.html#extras
-
+from esphome import automation, pins
+from esphome.automation import maybe_simple_id
 import esphome.codegen as cg
+from esphome.components import remote_base, sensor, spi, voltage_sampler
 import esphome.config_validation as cv
-from esphome import pins
 from esphome.const import (
-    CONF_ID,
+    CONF_CODE,
     CONF_FREQUENCY,
+    CONF_ID,
+    CONF_PROTOCOL,
+    CONF_TEMPERATURE,
+    DEVICE_CLASS_SIGNAL_STRENGTH,
+    DEVICE_CLASS_TEMPERATURE,
+    STATE_CLASS_MEASUREMENT,
+    UNIT_CELSIUS,
+    UNIT_DECIBEL_MILLIWATT,
+    UNIT_EMPTY,
 )
 
-# Mark the component to depend on other components.
-# If the user hasn’t explicitly added these components in their configuration, a validation error will be generated.
-DEPENDENCIES = [ ]
-# Automatically load a component if the user hasn’t added it manually
-AUTO_LOAD = [ ]
-# Mark this component to accept an array of configurations.
-# If this is an integer instead of a boolean, validation will only permit the given number of entries.
-MULTI_CONF = False
+DEPENDENCIES = ["spi"]
+AUTO_LOAD = ["sensor", "remote_base", "voltage_sampler"]
+MULTI_CONF = True
 
-# GitHub usernames or team names of people that are responsible for this component
-CODEOWNERS = ["@vinsce"]
+CODEOWNERS = ["@gabest11"]
 
-# Define constants for configuration keys
-CONF_SCK_PIN = "sck_pin"
-CONF_MISO_PIN = "miso_pin"
-CONF_MOSI_PIN = "mosi_pin"
-CONF_CSN_PIN = "csn_pin"
 CONF_GDO0_PIN = "gdo0_pin"
+CONF_GDO0_ADC_ID = "gdo0_adc_id"
 CONF_BANDWIDTH = "bandwidth"
+CONF_RSSI = "rssi"
+CONF_LQI = "lqi"
+CONF_CC1101_ID = "cc1101_id"
 
-# C++ namespace
 ns = cg.esphome_ns.namespace("cc1101")
-CC1101 = ns.class_("CC1101", cg.Component)
 
-# The configuration schema to validate the user config against
-CONFIG_SCHEMA = cv.COMPONENT_SCHEMA.extend(
-    {
-        cv.GenerateID(): cv.declare_id(CC1101),
-        #cv.Required(CONF_NAME): cv.string,
-        # TODO review input/output pins
-        cv.Required(CONF_SCK_PIN): pins.gpio_output_pin_schema,
-        cv.Required(CONF_MISO_PIN): pins.gpio_output_pin_schema,
-        cv.Required(CONF_MOSI_PIN): pins.gpio_output_pin_schema,
-        cv.Required(CONF_CSN_PIN): pins.gpio_output_pin_schema,
-        cv.Required(CONF_GDO0_PIN): pins.gpio_input_pin_schema,
-        cv.Optional(CONF_BANDWIDTH, default=200.0): cv.float_,
-        cv.Optional(CONF_FREQUENCY, default=868.65): cv.float_,
-    }
+CC1101 = ns.class_("CC1101", cg.PollingComponent, spi.SPIDevice)
+
+CONFIG_SCHEMA = (
+    cv.Schema(
+        {
+            cv.GenerateID(): cv.declare_id(CC1101),
+            cv.Optional(CONF_GDO0_PIN): pins.gpio_output_pin_schema,
+            cv.Optional(CONF_GDO0_ADC_ID): cv.use_id(voltage_sampler.VoltageSampler),
+            cv.Optional(CONF_BANDWIDTH, default=200): cv.uint32_t,
+            cv.Optional(CONF_FREQUENCY, default=433920): cv.uint32_t,
+            cv.Optional(CONF_RSSI): sensor.sensor_schema(
+                unit_of_measurement=UNIT_DECIBEL_MILLIWATT,
+                accuracy_decimals=0,
+                device_class=DEVICE_CLASS_SIGNAL_STRENGTH,
+                state_class=STATE_CLASS_MEASUREMENT,
+            ),
+            cv.Optional(CONF_LQI): sensor.sensor_schema(
+                unit_of_measurement=UNIT_EMPTY,
+                accuracy_decimals=0,
+                state_class=STATE_CLASS_MEASUREMENT,
+            ),
+            cv.Optional(CONF_TEMPERATURE): sensor.sensor_schema(
+                unit_of_measurement=UNIT_CELSIUS,
+                accuracy_decimals=1,
+                device_class=DEVICE_CLASS_TEMPERATURE,
+                state_class=STATE_CLASS_MEASUREMENT,
+            ),
+        }
+    )
+    .extend(cv.polling_component_schema("60s"))
+    .extend(spi.spi_device_schema(cs_pin_required=True))
 )
 
 
 async def to_code(config):
-    sck_pin = await cg.gpio_pin_expression(config[CONF_SCK_PIN])
-    miso_pin = await cg.gpio_pin_expression(config[CONF_MISO_PIN])
-    mosi_pin = await cg.gpio_pin_expression(config[CONF_MOSI_PIN])
-    csn_pin = await cg.gpio_pin_expression(config[CONF_CSN_PIN])
-    gd0_pin = await cg.gpio_pin_expression(config[CONF_GDO0_PIN])
-
-    # Declare new component
-    # Will create a new pointer:
-    #   transceiver = new cc1101::CC1101();
-    var = cg.new_Pvariable(config[CONF_ID], sck_pin, miso_pin, mosi_pin, csn_pin, gd0_pin)
-
-    # Will configure and register the component:
-    #   transceiver->set_update_interval(60000);
-    #   transceiver->set_component_source("cc1101");
-    #   App.register_component(transceiver);
+    var = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(var, config)
+    await spi.register_spi_device(var, config)
 
-    # cg.add is used to add a piece of code to the generated main.cpp
-    #   transceiver->set_bandwidth(200);
-    cg.add(var.set_bandwidth(config[CONF_BANDWIDTH]))
-    cg.add(var.set_frequency(config[CONF_FREQUENCY]))
+    if CONF_GDO0_PIN in config:
+        gdo0_pin = await cg.gpio_pin_expression(config[CONF_GDO0_PIN])
+        cg.add(var.set_config_gdo0_pin(gdo0_pin))
+    if CONF_GDO0_ADC_ID in config:
+        gdo0_adc_id = await cg.get_variable(config[CONF_GDO0_ADC_ID])
+        cg.add(var.set_config_gdo0_adc_pin(gdo0_adc_id))
+    cg.add(var.set_config_bandwidth(config[CONF_BANDWIDTH]))
+    cg.add(var.set_config_frequency(config[CONF_FREQUENCY]))
+    if CONF_RSSI in config:
+        rssi = await sensor.new_sensor(config[CONF_RSSI])
+        cg.add(var.set_config_rssi_sensor(rssi))
+    if CONF_LQI in config:
+        lqi = await sensor.new_sensor(config[CONF_LQI])
+        cg.add(var.set_config_lqi_sensor(lqi))
+    if CONF_TEMPERATURE in config:
+        temperature = await sensor.new_sensor(config[CONF_TEMPERATURE])
+        cg.add(var.set_config_temperature_sensor(temperature))
+
+
+BeginTxAction = ns.class_("BeginTxAction", automation.Action)
+EndTxAction = ns.class_("EndTxAction", automation.Action)
+
+CC1101_ACTION_SCHEMA = maybe_simple_id(
+    {
+        cv.GenerateID(CONF_ID): cv.use_id(CC1101),
+    }
+)
+
+
+@automation.register_action("cc1101.begin_tx", BeginTxAction, CC1101_ACTION_SCHEMA)
+@automation.register_action("cc1101.end_tx", EndTxAction, CC1101_ACTION_SCHEMA)
+async def cc1101_action_to_code(config, action_id, template_arg, args):
+    var = cg.new_Pvariable(action_id, template_arg)
+    await cg.register_parented(var, config[CONF_ID])
+    return var
+
+
+CC1101RawAction = ns.class_("CC1101RawAction", remote_base.RCSwitchRawAction)
+
+CC1101_TRANSMIT_SCHEMA = (
+    cv.Schema(
+        {
+            cv.GenerateID(CONF_CC1101_ID): cv.use_id(CC1101),
+        }
+    )
+    .extend(remote_base.REMOTE_TRANSMITTABLE_SCHEMA)
+    .extend(remote_base.RC_SWITCH_RAW_SCHEMA)
+    .extend(remote_base.RC_SWITCH_TRANSMITTER)
+)
+
+
+@remote_base.register_action(
+    "rc_switch_raw_cc1101", CC1101RawAction, CC1101_TRANSMIT_SCHEMA
+)
+async def rc_switch_raw_cc1101_action(var, config, args):
+    proto = await cg.templatable(
+        config[CONF_PROTOCOL],
+        args,
+        remote_base.RCSwitchBase,
+        to_exp=remote_base.build_rc_switch_protocol,
+    )
+    cg.add(var.set_protocol(proto))
+    cg.add(var.set_code(await cg.templatable(config[CONF_CODE], args, cg.std_string)))
+    await cg.register_parented(var, config[CONF_CC1101_ID])
