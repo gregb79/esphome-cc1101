@@ -16,6 +16,8 @@ CODEOWNERS = ["@gabest11", "@dbuezas", "@nistvan86", "@LSatan"]
 
 DEPENDENCIES = ["spi"]
 
+MULTI_CONF = True
+
 CONF_GDO0 = "gdo0"
 CONF_GDO2 = "gdo2"
 CONF_BANDWIDTH = "bandwidth"
