@@ -4,13 +4,10 @@ from esphome import automation, pins
 from esphome.components import sensor
 from esphome.components import spi
 from esphome.automation import maybe_simple_id
-from esphome.const import (
-    CONF_ID,
-    UNIT_EMPTY,
-    UNIT_DECIBEL_MILLIWATT,
-    DEVICE_CLASS_SIGNAL_STRENGTH,
-    STATE_CLASS_MEASUREMENT
-)
+from esphome.const import *
+from esphome.cpp_helpers import gpio_pin_expression
+from esphome.core import CORE
+import os
 
 CODEOWNERS = ["@gabest11", "@dbuezas", "@nistvan86", "@LSatan"]
 
