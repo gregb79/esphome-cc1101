@@ -7,6 +7,7 @@ namespace cc1101 {
 
 //***************************************CC1101 define**************************************************//
 // CC1101 CONFIG REGSITER
+static constexpr float XTAL_FREQUENCY = 26000;
 static const uint32_t CC1101_IOCFG2 = 0x00; // GDO2 output pin configuration
 static const uint32_t CC1101_IOCFG1 = 0x01; // GDO1 output pin configuration
 static const uint32_t CC1101_IOCFG0 = 0x02; // GDO0 output pin configuration
