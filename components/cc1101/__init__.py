@@ -31,7 +31,7 @@ CONF_SPA_ELECTRIC_MODE_SELECT = "spa_electric_mode_select"
 
 
 cc1101_ns = cg.esphome_ns.namespace("cc1101")
-CC1101 = cc1101_ns.class_("CC1101", sensor.Sensor, cg.PollingComponent, spi.SPIDevice)
+CC1101 = cc1101_ns.class_("CC1101", cg.Component, spi.SPIDevice)
 
 BeginTxAction = cc1101_ns.class_("BeginTxAction", automation.Action)
 EndTxAction = cc1101_ns.class_("EndTxAction", automation.Action)
@@ -125,3 +125,4 @@ async def to_code(config):
         cg.add(var.set_spa_electric_instruction_input(config[CONF_SPA_ELECTRIC_INSTRUCTION_INPUT]))
     if CONF_SPA_ELECTRIC_MODE_SELECT in config:
         cg.add(var.set_spa_electric_mode_select(config[CONF_SPA_ELECTRIC_MODE_SELECT]))
+
