@@ -56,8 +56,6 @@ CC1101::CC1101()
 
   this->partnum_ = 0;
   this->version_ = 0;
-  this->last_rssi_ = INT_MIN;
-  this->last_lqi_ = INT_MIN;
 
   this->mode_ = false;
   this->modulation_ = 2;
@@ -643,19 +641,6 @@ void CC1101::split_MDMCFG4()
 
   this->m4RxBw_ = calc & 0xf0;
   this->m4DaRa_ = calc & 0x0f;
-}
-
-int32_t CC1101::get_rssi()
-{
-  int32_t rssi;
-  rssi = this->read_status_register(CC1101_RSSI);
-  if(rssi >= 128) rssi -= 256;
-  return (rssi / 2) - 74;
-}
-
-uint8_t CC1101::get_lqi()
-{
-  return this->read_status_register(CC1101_LQI);
 }
 
 void CC1101::begin_tx()
