@@ -20,8 +20,6 @@ CONF_GDO0 = "gdo0"
 CONF_GDO2 = "gdo2"
 CONF_BANDWIDTH = "bandwidth"
 CONF_FREQUENCY = "frequency"
-CONF_RSSI = "rssi"
-CONF_LQI = "lqi"
 CONF_MODULATION = "modulation"
 CONF_DEVIATION = "deviation"
 CONF_SPA_ELECTRIC_ID0_INPUT = "spa_electric_id0_input"
@@ -53,17 +51,6 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_SPA_ELECTRIC_INSTRUCTION_INPUT): cv.int_,
             cv.Optional(CONF_SPA_ELECTRIC_MODE_SELECT): cv.int_,
             cv.Optional("allow_other_uses", default=False): cv.boolean, 
-            cv.Optional(CONF_RSSI): sensor.sensor_schema(
-                unit_of_measurement = UNIT_DECIBEL_MILLIWATT,
-                accuracy_decimals = 0,
-                device_class = DEVICE_CLASS_SIGNAL_STRENGTH,
-                state_class = STATE_CLASS_MEASUREMENT,
-            ),
-            cv.Optional(CONF_LQI): sensor.sensor_schema(
-                unit_of_measurement = UNIT_EMPTY,
-                accuracy_decimals = 0,
-                state_class = STATE_CLASS_MEASUREMENT,
-            ),
         }
     )
     .extend(cv.polling_component_schema("60s"))
@@ -115,12 +102,6 @@ async def to_code(config):
     cg.add(var.set_config_frequency(config[CONF_FREQUENCY]))
     cg.add(var.set_config_modulation(config[CONF_MODULATION]))
     cg.add(var.set_config_deviation(config[CONF_DEVIATION]))
-    if CONF_RSSI in config:
-        rssi = await sensor.new_sensor(config[CONF_RSSI])
-        cg.add(var.set_config_rssi_sensor(rssi))
-    if CONF_LQI in config:
-        lqi = await sensor.new_sensor(config[CONF_LQI])
-        cg.add(var.set_config_lqi_sensor(lqi))
     if CONF_SPA_ELECTRIC_ID0_INPUT in config:
         cg.add(var.set_spa_electric_id0_input(config[CONF_SPA_ELECTRIC_ID0_INPUT]))
     if CONF_SPA_ELECTRIC_ID1_INPUT in config:
@@ -129,6 +110,7 @@ async def to_code(config):
         cg.add(var.set_spa_electric_instruction_input(config[CONF_SPA_ELECTRIC_INSTRUCTION_INPUT]))
     if CONF_SPA_ELECTRIC_MODE_SELECT in config:
         cg.add(var.set_spa_electric_mode_select(config[CONF_SPA_ELECTRIC_MODE_SELECT]))
+
 
 
 
