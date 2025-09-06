@@ -1,7 +1,6 @@
 #pragma once
 
 #include "esphome/core/component.h"
-#include "esphome/components/sensor/sensor.h"
 #include "esphome/components/spi/spi.h"
 #include "esphome/components/number/number.h"
 #include "esphome/components/select/select.h"
@@ -11,8 +10,7 @@ namespace esphome {
 namespace cc1101 {
 
 class CC1101 
-  : public sensor::Sensor,
-    public PollingComponent,
+  : public Component,
     public spi::SPIDevice<spi::BIT_ORDER_MSB_FIRST, spi::CLOCK_POLARITY_LOW, spi::CLOCK_PHASE_LEADING, spi::DATA_RATE_1KHZ>
 {
 protected:
@@ -20,8 +18,6 @@ protected:
   InternalGPIOPin* gdo2_;
   uint32_t bandwidth_;
   uint32_t frequency_;
-  sensor::Sensor* rssi_sensor_;
-  sensor::Sensor* lqi_sensor_;
 
   uint8_t partnum_;
   uint8_t version_;
@@ -85,8 +81,6 @@ public:
   void set_config_frequency(uint32_t frequency);
   void set_config_modulation(int modulation);
   void set_config_deviation(float deviation);
-  void set_config_rssi_sensor(sensor::Sensor* rssi_sensor);
-  void set_config_lqi_sensor(sensor::Sensor* lqi_sensor);
 
   void setup() override;
   void update() override;
