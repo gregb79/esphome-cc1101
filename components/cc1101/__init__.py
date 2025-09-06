@@ -53,7 +53,6 @@ CONFIG_SCHEMA = (
             cv.Optional("allow_other_uses", default=False): cv.boolean, 
         }
     )
-    .extend(cv.polling_component_schema("60s"))
     .extend(spi.spi_device_schema(cs_pin_required=True))
 )
 
@@ -110,6 +109,7 @@ async def to_code(config):
         cg.add(var.set_spa_electric_instruction_input(config[CONF_SPA_ELECTRIC_INSTRUCTION_INPUT]))
     if CONF_SPA_ELECTRIC_MODE_SELECT in config:
         cg.add(var.set_spa_electric_mode_select(config[CONF_SPA_ELECTRIC_MODE_SELECT]))
+
 
 
 
