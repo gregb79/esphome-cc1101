@@ -21,8 +21,6 @@ protected:
 
   uint8_t partnum_;
   uint8_t version_;
-  int32_t last_rssi_;
-  int32_t last_lqi_;
 
   bool reset();
   void send_cmd(uint8_t cmd);
@@ -85,9 +83,6 @@ public:
   void setup() override;
   void update() override;
   void dump_config() override;
-
-  int32_t get_rssi();
-  uint8_t get_lqi();
 
   void begin_tx();
   void end_tx();
