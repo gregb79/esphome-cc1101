@@ -81,7 +81,7 @@ public:
   void set_config_deviation(float deviation);
 
   void setup() override;
-  void update() override;
+  void update() ;
   void dump_config() override;
 
   void begin_tx();
