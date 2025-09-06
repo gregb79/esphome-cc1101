@@ -53,8 +53,6 @@ CC1101::CC1101()
   this->gdo2_ = NULL;
   this->bandwidth_ = 200;
   this->frequency_ = 433920;
-  this->rssi_sensor_ = NULL;
-  this->lqi_sensor_ = NULL;
 
   this->partnum_ = 0;
   this->version_ = 0;
@@ -109,16 +107,6 @@ void CC1101::set_config_modulation(int modulation)
 void CC1101::set_config_deviation(float deviation)
 { 
   deviation_ = deviation;
-}
-
-void CC1101::set_config_rssi_sensor(sensor::Sensor* rssi_sensor)
-{
-  rssi_sensor_ = rssi_sensor;
-}
-
-void CC1101::set_config_lqi_sensor(sensor::Sensor* lqi_sensor)
-{
-  lqi_sensor_ = lqi_sensor;
 }
 
 void CC1101::setup()
@@ -186,29 +174,7 @@ void CC1101::setup()
 
 void CC1101::update()
 {
-  if(this->rssi_sensor_ != NULL)
-  {
-    int32_t rssi = this->get_rssi();
 
-    if(rssi != this->last_rssi_)
-    {
-      this->rssi_sensor_->publish_state(rssi);
-
-      this->last_rssi_ = rssi;
-    }
-  }
-
-  if(this->lqi_sensor_ != NULL)
-  {
-    int32_t lqi = this->get_lqi() & 0x7f; // msb = CRC ok or not set
-
-    if(lqi != this->last_lqi_)
-    {
-      this->lqi_sensor_->publish_state(lqi);
-
-      this->last_lqi_ = lqi;
-    }
-  }
 }
 
 void CC1101::dump_config()
@@ -221,8 +187,6 @@ void CC1101::dump_config()
   ESP_LOGCONFIG(TAG, "  CC1101 Frequency: %d KHz", this->frequency_);
   ESP_LOGCONFIG(TAG, "  CC1101 Modulation: %d KHz", this->modulation_);
   ESP_LOGCONFIG(TAG, "  CC1101 Deviation: %d KHz", this->deviation_);
-  LOG_SENSOR("  ", "RSSI", this->rssi_sensor_);
-  LOG_SENSOR("  ", "LQI", this->lqi_sensor_);
 }
 
 bool CC1101::reset()
