@@ -89,9 +89,6 @@ async def to_code(config):
     await cg.register_component(var, config)
     await spi.register_spi_device(var, config)
 
-    if "allow_other_uses" in config:
-        cg.add(var.set_allow_other_uses(config["allow_other_uses"])) 
-
     gdo0 = await cg.gpio_pin_expression(config[CONF_GDO0])
     cg.add(var.set_config_gdo0(gdo0))
     if CONF_GDO2 in config:
@@ -109,6 +106,7 @@ async def to_code(config):
         cg.add(var.set_spa_electric_instruction_input(config[CONF_SPA_ELECTRIC_INSTRUCTION_INPUT]))
     if CONF_SPA_ELECTRIC_MODE_SELECT in config:
         cg.add(var.set_spa_electric_mode_select(config[CONF_SPA_ELECTRIC_MODE_SELECT]))
+
 
 
 
