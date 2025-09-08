@@ -694,7 +694,7 @@ void CC1101::set_spa_electric_mode_select(int value) {
   // Store the value or use it as needed
 }
 
-std::vector<int> CC1101::get_data(int id0, int id1, int instruction, int mode) {
+std::vector<long> CC1101::get_data(int id0, int id1, int instruction, int mode) {
     uint8_t DATA_TABLE[12] = {0xAA, 0XAA, 0XAA, 0XAA, 0x2D, 0xD4, 0xF9, 203, 0x00, 17, 3, 0x00};
     uint8_t DATACRC_TABLE[12] = {0x00, 0X00, 0X00, 0X00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
@@ -717,7 +717,7 @@ std::vector<int> CC1101::get_data(int id0, int id1, int instruction, int mode) {
     }
 
     // Create a vector to store the data
-    std::vector<int> DataVector;
+    std::vector<long> DataVector;
     for (int i = 0; i < 12; ++i) {
         uint8_t byte = DATACRC_TABLE[i];
         for (int j = 7; j >= 0; --j) {
@@ -731,7 +731,7 @@ std::vector<int> CC1101::get_data(int id0, int id1, int instruction, int mode) {
 
     // Convert DataVector elements to a single string
     std::string dataString;
-    for (int value : DataVector) {
+    for (long value : DataVector) {
         dataString += std::to_string(value) + ", ";
     }
 
