@@ -70,6 +70,9 @@ protected:
   void split_MDMCFG2(); 
   void split_MDMCFG4();
 
+  const char *modulation_name(uint8_t mod_format);
+  const char *sync_mode_name(uint8_t mode);
+  
 public:
   CC1101();
 
