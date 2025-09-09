@@ -83,7 +83,8 @@ public:
   void setup() override;
   void update() ;
   void dump_config() override;
-
+  void get_modulation();
+  
   void begin_tx();
   void end_tx();
   std::vector<long> get_data(int id0, int id1, int instruction, int mode);
