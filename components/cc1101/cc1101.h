@@ -56,7 +56,7 @@ protected:
 
   void set_mode(bool s);
   void set_frequency(uint32_t f);
-  void set_modulation(uint8_t m);
+  
   void set_deviation(float d);
   void set_pa(int8_t pa);
   void set_clb(uint8_t b, uint8_t s, uint8_t e);
@@ -87,6 +87,7 @@ public:
   void update() ;
   void dump_config() override;
   void get_modulation();
+  void set_modulation(uint8_t m);
   
   void begin_tx();
   void end_tx();
