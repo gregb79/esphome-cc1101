@@ -355,9 +355,9 @@ void CC1101::get_modulation()
 
   ESP_LOGI("cc1101", "MDMCFG2 = 0x%02X", mdmcfg2);
   ESP_LOGI("cc1101", "  m2DCOFF = %d", m2DCOFF);
-  ESP_LOGI("cc1101", "  m2MODFM = 0x%X (%s)", m2MODFM, modulation_name(m2MODFM));
+  ESP_LOGI("cc1101", "  m2MODFM = 0x%X (%s)", m2MODFM, this->modulation_name(m2MODFM));
   ESP_LOGI("cc1101", "  m2MANCH = %d", m2MANCH);
-  ESP_LOGI("cc1101", "  m2SYNCM = %d (%s)", m2SYNCM, sync_mode_name(m2SYNCM));
+  ESP_LOGI("cc1101", "  m2SYNCM = %d (%s)", m2SYNCM, this->sync_mode_name(m2SYNCM));
   ESP_LOGI("cc1101", "FREND0  = 0x%02X", frend0);
   }
 
