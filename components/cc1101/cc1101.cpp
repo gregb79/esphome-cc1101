@@ -343,6 +343,50 @@ void CC1101::set_modulation(uint8_t m)
   this->set_pa(this->pa_);
 }
 
+void CC1101::get_modulation()
+{
+  uint8_t mdmcfg2 = this->read_status_register(CC1101_MDMCFG2);
+  uint8_t frend0  = this->read_status_register(CC1101_FREND0);  
+
+  uint8_t m2DCOFF = (mdmcfg2 >> 7) & 0x01;
+  uint8_t m2MODFM = (mdmcfg2 >> 4) & 0x07;
+  uint8_t m2MANCH = (mdmcfg2 >> 3) & 0x01;
+  uint8_t m2SYNCM = mdmcfg2 & 0x07;
+
+  ESP_LOGI("cc1101", "MDMCFG2 = 0x%02X", mdmcfg2);
+  ESP_LOGI("cc1101", "  m2DCOFF = %d", m2DCOFF);
+  ESP_LOGI("cc1101", "  m2MODFM = 0x%X (%s)", m2MODFM, modulation_name(m2MODFM));
+  ESP_LOGI("cc1101", "  m2MANCH = %d", m2MANCH);
+  ESP_LOGI("cc1101", "  m2SYNCM = %d (%s)", m2SYNCM, sync_mode_name(m2SYNCM));
+  ESP_LOGI("cc1101", "FREND0  = 0x%02X", frend0);
+  }
+
+const char* CC1101::modulation_name(uint8_t mod_format) {
+  switch (mod_format) {
+    case 0x0: return "2-FSK";
+    case 0x1: return "GFSK";
+    case 0x3: return "ASK/OOK";
+    case 0x4: return "4-FSK";
+    case 0x7: return "MSK";
+    default:  return "Unknown";
+  }
+}
+
+const char* CC1101::sync_mode_name(uint8_t mode) {
+  switch (mode) {
+    case 0: return "No preamble/sync";
+    case 1: return "15/16 sync";
+    case 2: return "16/16 sync";
+    case 3: return "30/32 sync";
+    case 4: return "Carrier sense only";
+    case 5: return "15/16 sync + CS";
+    case 6: return "16/16 sync + CS";
+    case 7: return "30/32 sync + CS";
+    default: return "Unknown";
+  }
+}
+
+
 void CC1101::set_deviation(float d){
 float f = 1.586914;
 float v = 0.19836425;
