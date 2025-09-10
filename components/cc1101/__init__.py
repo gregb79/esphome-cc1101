@@ -45,7 +45,7 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_GDO2): pins.internal_gpio_input_pin_schema,
             cv.Optional(CONF_BANDWIDTH, default=200): cv.uint32_t,
             cv.Optional(CONF_FREQUENCY, default=433920): cv.uint32_t,
-            cv.Optional(CONF_MODULATION, default=0): cv.uint8_t,
+            cv.Optional(CONF_MODULATION, default=2): cv.uint8_t,
             cv.Optional(CONF_DEVIATION, default=160): cv.float_,
             cv.Optional(CONF_SPA_ELECTRIC_ID0_INPUT): cv.int_,
             cv.Optional(CONF_SPA_ELECTRIC_ID1_INPUT): cv.int_,
@@ -106,6 +106,7 @@ async def to_code(config):
         cg.add(var.set_spa_electric_instruction_input(config[CONF_SPA_ELECTRIC_INSTRUCTION_INPUT]))
     if CONF_SPA_ELECTRIC_MODE_SELECT in config:
         cg.add(var.set_spa_electric_mode_select(config[CONF_SPA_ELECTRIC_MODE_SELECT]))
+
 
 
 
