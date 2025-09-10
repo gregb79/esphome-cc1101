@@ -290,8 +290,6 @@ void CC1101::set_defaults()
   this->write_register(CC1101_VCO_VC_DAC, 0x00);     // Current Setting from PLL Calibration Module
   this->write_register(CC1101_TXBYTES, 0x00);        // Underflow and Number of Bytes
   this->write_register(CC1101_RXBYTES, 0x00);        // Overflow and Number of Bytes
-  this->write_register(CC1101_RCCTRL1_STATUS, 0x00); // Last RC Oscillator Calibration Result
-  this->write_register(CC1101_RCCTRL0_STATUS, 0x00); // Last RC Oscillator Calibration Result
 
   this->setup();
   ESP_LOGD(TAG, "Issued CC1101 set default sequence.");
