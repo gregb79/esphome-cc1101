@@ -84,8 +84,9 @@ public:
   void set_config_deviation(float deviation);
 
   void setup() override;
-  void update() ;
-  void set_defaults() ;
+  void update();
+  void set_defaults();
+  void show_register();
   void dump_config() override;
   void get_modulation();
   void set_modulation(uint8_t m);
