@@ -85,6 +85,7 @@ public:
 
   void setup() override;
   void update() ;
+  void set_defaults() ;
   void dump_config() override;
   void get_modulation();
   void set_modulation(uint8_t m);
