@@ -25,6 +25,60 @@
 #include <vector>
 #include <string>
 
+static const char *Register[] = {
+
+"IOCFG2",
+"IOCFG1",
+"IOCFG0",
+"FIFOTHR",
+"SYNC1",
+"SYNC0",
+"PKTLEN",
+"PKTCTRL1",
+"PKTCTRL0",
+"ADDR",
+"CHANNR",
+"FSCTRL1",
+"FSCTRL0",
+"FREQ2",
+"FREQ1",
+"FREQ0",
+"MDMCFG4",
+"MDMCFG3",
+"MDMCFG2",
+"MDMCFG1",
+"MDMCFG0",
+"DEVIATN",
+"MCSM2",
+"MCSM1",
+"MCSM0",
+"FOCCFG",
+"BSCFG",
+"AGCCTRL2",
+"AGCCTRL1",
+"AGCCTRL0",
+"WOREVT1",
+"WOREVT0",
+"WORCTRL",
+"FREND1",
+"FREND0",
+"FSCAL3",
+"FSCAL2",
+"FSCAL1",
+"FSCAL0",
+"RCCTRL1",
+"RCCTRL0",
+"FSTEST",
+"PTEST",
+"AGCTEST",
+"TEST2",
+"TEST1",
+"TEST0",
+};
+
+
+
+
 
 #ifdef USE_ARDUINO
 #include <Arduino.h>
@@ -173,6 +227,95 @@ void CC1101::setup()
 void CC1101::update()
 {
 
+}
+
+void CC1101::set_defaults()
+{
+
+  
+  
+  this->write_register(CC1101_IOCFG2, 0x29);         // GDO2 Output Pin Configuration
+  this->write_register(CC1101_IOCFG1, 0x2E);         // GDO1 Output Pin Configuration
+  this->write_register(CC1101_IOCFG0, 0x06);         // GDO0 Output Pin Configuration
+  this->write_register(CC1101_FIFOTHR, 0x47);        // RX FIFO and TX FIFO Thresholds
+  this->write_register(CC1101_SYNC1, 0xD3);          // Sync Word, High Byte
+  this->write_register(CC1101_SYNC0, 0x91);          // Sync Word, Low Byte
+  this->write_register(CC1101_PKTLEN, 0xFF);         // Packet Length
+  this->write_register(CC1101_PKTCTRL1, 0x04);       // Packet Automation Control
+  this->write_register(CC1101_PKTCTRL0, 0x06);       // Packet Automation Control
+  this->write_register(CC1101_ADDR, 0x00);           // Device Address
+  this->write_register(CC1101_CHANNR, 0x00);         // Channel Number
+  this->write_register(CC1101_FSCTRL1, 0x0F);        // Frequency Synthesizer Control
+  this->write_register(CC1101_FSCTRL0, 0x00);        // Frequency Synthesizer Control
+  this->write_register(CC1101_FREQ2, 0x10);          // Frequency Control Word, High Byte
+  this->write_register(CC1101_FREQ1, 0xB0);          // Frequency Control Word, Middle Byte
+  this->write_register(CC1101_FREQ0, 0x71);          // Frequency Control Word, Low Byte
+  this->write_register(CC1101_MDMCFG4, 0x87);        // Modem Configuration
+  this->write_register(CC1101_MDMCFG3, 0x43);        // Modem Configuration
+  this->write_register(CC1101_MDMCFG2, 0x30);        // Modem Configuration
+  this->write_register(CC1101_MDMCFG1, 0x22);        // Modem Configuration
+  this->write_register(CC1101_MDMCFG0, 0xF8);        // Modem Configuration
+  this->write_register(CC1101_DEVIATN, 0x47);        // Modem Deviation Setting
+  this->write_register(CC1101_MCSM2, 0x07);          // Main Radio Control State Machine Configuration
+  this->write_register(CC1101_MCSM1, 0x30);          // Main Radio Control State Machine Configuration
+  this->write_register(CC1101_MCSM0, 0x04);          // Main Radio Control State Machine Configuration
+  this->write_register(CC1101_FOCCFG, 0x36);         // Frequency Offset Compensation Configuration
+  this->write_register(CC1101_BSCFG, 0x6C);          // Bit Synchronization Configuration
+  this->write_register(CC1101_AGCCTRL2, 0x03);       // AGC Control
+  this->write_register(CC1101_AGCCTRL1, 0x40);       // AGC Control
+  this->write_register(CC1101_AGCCTRL0, 0x91);       // AGC Control
+  this->write_register(CC1101_WOREVT1, 0x87);        // High Byte Event0 Timeout
+  this->write_register(CC1101_WOREVT0, 0x6B);        // Low Byte Event0 Timeout
+  this->write_register(CC1101_WORCTRL, 0xF8);        // Wake On Radio Control
+  this->write_register(CC1101_FREND1, 0x56);         // Front End RX Configuration
+  this->write_register(CC1101_FREND0, 0x11);         // Front End TX Configuration
+  this->write_register(CC1101_FSCAL3, 0xE9);         // Frequency Synthesizer Calibration
+  this->write_register(CC1101_FSCAL2, 0x2A);         // Frequency Synthesizer Calibration
+  this->write_register(CC1101_FSCAL1, 0x00);         // Frequency Synthesizer Calibration
+  this->write_register(CC1101_FSCAL0, 0x1F);         // Frequency Synthesizer Calibration
+  this->write_register(CC1101_RCCTRL1, 0x41);        // RC Oscillator Configuration
+  this->write_register(CC1101_RCCTRL0, 0x00);        // RC Oscillator Configuration
+  this->write_register(CC1101_FSTEST, 0x59);         // Frequency Synthesizer Calibration Control
+  this->write_register(CC1101_PTEST, 0x7F);          // Production Test
+  this->write_register(CC1101_AGCTEST, 0x3F);        // AGC Test
+  this->write_register(CC1101_TEST2, 0x81);          // Various Test Settings
+  this->write_register(CC1101_TEST1, 0x35);          // Various Test Settings
+  this->write_register(CC1101_TEST0, 0x09);          // Various Test Settings
+  this->write_register(CC1101_PARTNUM, 0x00);        // Chip ID
+  this->write_register(CC1101_VERSION, 0x04);        // Chip ID
+  this->write_register(CC1101_FREQEST, 0x00);        // Frequency Offset Estimate from Demodulator
+  this->write_register(CC1101_LQI, 0x00);            // Demodulator Estimate for Link Quality
+  this->write_register(CC1101_RSSI, 0x00);           // Received Signal Strength Indication
+  this->write_register(CC1101_MARCSTATE, 0x00);      // Main Radio Control State Machine State
+  this->write_register(CC1101_WORTIME1, 0x00);       // High Byte of WOR Time
+  this->write_register(CC1101_WORTIME0, 0x00);       // Low Byte of WOR Time
+  this->write_register(CC1101_PKTSTATUS, 0x00);      // Current GDOx Status and Packet Status
+  this->write_register(CC1101_VCO_VC_DAC, 0x00);     // Current Setting from PLL Calibration Module
+  this->write_register(CC1101_TXBYTES, 0x00);        // Underflow and Number of Bytes
+  this->write_register(CC1101_RXBYTES, 0x00);        // Overflow and Number of Bytes
+  this->write_register(CC1101_RCCTRL1_STATUS, 0x00); // Last RC Oscillator Calibration Result
+  this->write_register(CC1101_RCCTRL0_STATUS, 0x00); // Last RC Oscillator Calibration Result
+
+  this->setup();
+  ESP_LOGD(TAG, "Issued CC1101 set default sequence.");
+}
+
+void CC1101::show_register() {
+  std::string line(30, '-');
+  ESP_LOGD("cc1101_debug", "%s", line.c_str());
+  ESP_LOGD("cc1101_debug", "CC1101 Register");
+  ESP_LOGD("cc1101_debug", "%s", line.c_str());
+
+  for (int i = 0; i <= 46; i++) {
+    const char* reg_name = Register[i];
+    int len = strlen(reg_name);
+    int spaces = 10 - len;
+    std::string padding(spaces > 0 ? spaces : 0, ' ');
+
+    uint8_t reg_val = this->read_register(i);
+
+    ESP_LOGD("cc1101_debug", "%s%s0x%02X", reg_name, padding.c_str(), reg_val);
+  }
 }
 
 void CC1101::dump_config()
