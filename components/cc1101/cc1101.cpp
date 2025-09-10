@@ -321,7 +321,8 @@ void CC1101::show_register() {
 
     uint8_t reg_val = this->read_status_register(i);
 
-    ESP_LOGD("cc1101_debug", "%s%s0x%02X", reg_name, padding.c_str(), reg_val);
+    ESP_LOGD("cc1101_debug", "%-20s 0x%02X", reg_name, reg_val);
+//    ESP_LOGD("cc1101_debug", "%s%s0x%02X", reg_name, padding.c_str(), reg_val);
   }
 }
 
