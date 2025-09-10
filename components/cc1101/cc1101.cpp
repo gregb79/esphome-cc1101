@@ -749,36 +749,52 @@ void CC1101::set_frequency(uint32_t f)
   }
 }
 
-void CC1101::get_frequency(void){
-float f;
-f = ELECHOUSE_cc1101.SpiReadStatus(13)*26;
-f = ELECHOUSE_cc1101.SpiReadStatus(14)*0.1015625 + f;
-f = ELECHOUSE_cc1101.SpiReadStatus(15)*0.00039675 + f;
-print_string("Base Freq");
-Serial.print(f,3);
-Serial.println(" Mhz");
-float c = 25.390625;
-for (int i = 0; i<ELECHOUSE_cc1101.SpiReadStatus(20); i++){c+=0.099182;}
-Split_MDMCFG1();
-for (int i = 0; i<m1chsp; i++){c*=2;}
-c*=ELECHOUSE_cc1101.SpiReadStatus(10);
-c/=1000;
-c+=f;
-print_string("Car. Freq");
-Serial.print(c,3);
-Serial.println(" Mhz");
-print_string("Channel");
-Serial.println(ELECHOUSE_cc1101.SpiReadStatus(10));
-print_register(13);
-print_register(14);
-print_register(15);
+void CC1101::get_frequency(void) {
+  // Read frequency registers
+  uint8_t freq2 = this->read_status_register(CC1101_FREQ2);
+  uint8_t freq1 = this->read_status_register(CC1101_FREQ1);
+  uint8_t freq0 = this->read_status_register(CC1101_FREQ0);
+
+  // Base frequency calculation (MHz)
+  float base_freq = freq2 * 26.0f;
+  base_freq += freq1 * 0.1015625f;
+  base_freq += freq0 * 0.00039675f;
+
+  ESP_LOGD("cc1101_debug", "Base Frequency: %.3f MHz", base_freq);
+
+  // Read CHANNR and MDMCFG0 for channel spacing
+  uint8_t channr = this->read_status_register(CC1101_CHANNR);
+  uint8_t mdmcfg0 = this->read_status_register(CC1101_MDMCFG0);
+
+  // Start with default channel spacing in kHz
+  float spacing_khz = 25.390625f;
+  for (int i = 0; i < mdmcfg0; i++) {
+    spacing_khz += 0.099182f;
+  }
+
+  // Read CHSP bits from MDMCFG1 (bits 6:4)
+  uint8_t mdmcfg1 = this->read_status_register(CC1101_MDMCFG1);
+  uint8_t chsp_bits = (mdmcfg1 >> 4) & 0x07;
+
+  for (int i = 0; i < chsp_bits; i++) {
+    spacing_khz *= 2.0f;
+  }
+
+  // Final carrier frequency in MHz
+  float carrier_freq = base_freq + ((spacing_khz * channr) / 1000.0f);
+
+  // Log all results
+  ESP_LOGD("cc1101_debug", "Channel Number: %u", channr);
+  ESP_LOGD("cc1101_debug", "Channel Spacing: %.3f kHz", spacing_khz);
+  ESP_LOGD("cc1101_debug", "Carrier Frequency: %.3f MHz", carrier_freq);
+
+  // Optional: log register values for debug
+  ESP_LOGD("cc1101_debug", "FREQ2: 0x%02X", freq2);
+  ESP_LOGD("cc1101_debug", "FREQ1: 0x%02X", freq1);
+  ESP_LOGD("cc1101_debug", "FREQ0: 0x%02X", freq0);
+  ESP_LOGD("cc1101_debug", "MDMCFG1: 0x%02X", mdmcfg1);
+  ESP_LOGD("cc1101_debug", "MDMCFG0: 0x%02X", mdmcfg0);
 }
-
-
-
-
-
-
 
 
 void CC1101::set_clb(uint8_t b, uint8_t s, uint8_t e)
