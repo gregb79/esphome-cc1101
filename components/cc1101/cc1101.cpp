@@ -124,7 +124,7 @@ CC1101::CC1101()
   this->version_ = 0;
 
   this->mode_ = false;
-  this->modulation_ = 2;
+  this->modulation_ = 3;
   this->chan_ = 0;
   this->pa_ = 12;
   this->last_pa_ = -1;
@@ -243,6 +243,8 @@ void CC1101::update()
 
 void CC1101::set_defaults()
 {
+
+  this->set_mode(false);
   this->write_register(CC1101_IOCFG2, 0x29);         // GDO2 Output Pin Configuration
   this->write_register(CC1101_IOCFG1, 0x2E);         // GDO1 Output Pin Configuration
   this->write_register(CC1101_IOCFG0, 0x06);         // GDO0 Output Pin Configuration
@@ -302,8 +304,7 @@ void CC1101::set_defaults()
   this->write_register(CC1101_VCO_VC_DAC, 0x00);     // Current Setting from PLL Calibration Module
   this->write_register(CC1101_TXBYTES, 0x00);        // Underflow and Number of Bytes
   this->write_register(CC1101_RXBYTES, 0x00);        // Overflow and Number of Bytes
-
-  this->setup();
+//  this->setup();
   ESP_LOGD(TAG, "Issued CC1101 set default sequence.");
 }
 
