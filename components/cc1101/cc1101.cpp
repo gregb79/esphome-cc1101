@@ -124,7 +124,7 @@ CC1101::CC1101()
   this->version_ = 0;
 
   this->mode_ = false;
-  this->modulation_ = 3;
+  this->modulation_ = 2;
   this->chan_ = 0;
   this->pa_ = 12;
   this->last_pa_ = -1;
