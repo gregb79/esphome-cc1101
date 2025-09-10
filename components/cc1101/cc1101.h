@@ -90,6 +90,7 @@ public:
   void dump_config() override;
   void get_modulation();
   void set_modulation(uint8_t m);
+  void get_frequency();
   
   void begin_tx();
   void end_tx();
