@@ -231,9 +231,6 @@ void CC1101::update()
 
 void CC1101::set_defaults()
 {
-
-  
-  
   this->write_register(CC1101_IOCFG2, 0x29);         // GDO2 Output Pin Configuration
   this->write_register(CC1101_IOCFG1, 0x2E);         // GDO1 Output Pin Configuration
   this->write_register(CC1101_IOCFG0, 0x06);         // GDO0 Output Pin Configuration
@@ -312,7 +309,7 @@ void CC1101::show_register() {
     int spaces = 10 - len;
     std::string padding(spaces > 0 ? spaces : 0, ' ');
 
-    uint8_t reg_val = this->read_register(i);
+    uint8_t reg_val = this->read_status_register(i);
 
     ESP_LOGD("cc1101_debug", "%s%s0x%02X", reg_name, padding.c_str(), reg_val);
   }
