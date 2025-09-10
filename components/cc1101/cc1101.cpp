@@ -749,6 +749,38 @@ void CC1101::set_frequency(uint32_t f)
   }
 }
 
+void CC1101::get_frequency(void){
+float f;
+f = ELECHOUSE_cc1101.SpiReadStatus(13)*26;
+f = ELECHOUSE_cc1101.SpiReadStatus(14)*0.1015625 + f;
+f = ELECHOUSE_cc1101.SpiReadStatus(15)*0.00039675 + f;
+print_string("Base Freq");
+Serial.print(f,3);
+Serial.println(" Mhz");
+float c = 25.390625;
+for (int i = 0; i<ELECHOUSE_cc1101.SpiReadStatus(20); i++){c+=0.099182;}
+Split_MDMCFG1();
+for (int i = 0; i<m1chsp; i++){c*=2;}
+c*=ELECHOUSE_cc1101.SpiReadStatus(10);
+c/=1000;
+c+=f;
+print_string("Car. Freq");
+Serial.print(c,3);
+Serial.println(" Mhz");
+print_string("Channel");
+Serial.println(ELECHOUSE_cc1101.SpiReadStatus(10));
+print_register(13);
+print_register(14);
+print_register(15);
+}
+
+
+
+
+
+
+
+
 void CC1101::set_clb(uint8_t b, uint8_t s, uint8_t e)
 {
   if(b < 4) 
